@@ -3,12 +3,9 @@ from binance.client import Client
 client = Client(config.APIKEY, config.APISECRET)
 
 
-def get_ticker():
-    pass
-
-
 def main():
-    pass
+    info = client.get_account()
+    print(info)
 
 
 if __name__ == '__main__':
