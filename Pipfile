@@ -1,7 +1,7 @@
 [[source]]
 url = "https://pypi.org/simple"
-name = "pypi"
 verify_ssl = true
+name = "pypi"
 
 [packages]
 "asn1crypto" = "==0.24.0"
@@ -37,4 +37,4 @@ Twisted = "==18.4.0"
 [dev-packages]
 
 [requires]
-python_version = "2.7"
+python_version = "3.5"
