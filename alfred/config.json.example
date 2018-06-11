@@ -1,0 +1,15 @@
+{
+	"binance": {
+		"apikey": "",
+		"apisecret": ""
+	},
+	"telegram": {
+		"token": ""
+	},
+	"genesis": {
+		"username": "",
+		"password": "",
+		"login_url": "",
+		"grade_url": ""
+	}
+}
