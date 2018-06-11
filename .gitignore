@@ -1,1 +1,3 @@
-config.py
+*.json
+commands.txt
+__pycache__
