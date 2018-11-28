@@ -36,7 +36,6 @@ Twisted = "==18.4.0"
 python-telegram-bot = "*"
 "bs4" = "*"
 lxml = "*"
-telegram = "*"
 
 [dev-packages]
 pylint = "*"

@@ -10,6 +10,11 @@ url = "https://api.sandbox.gemini.com"
 gemini_api_key = config.geminiTestNet['apiKey']
 gemini_api_secret = config.geminiTestNet['apiSecret'].encode('utf-8')
 
+def get_price(symbol):
+    r = requests.get(url+"/v1/pubticker/"+symbol)
+    price = r.json()
+    return price['last']
+
 def get_balance():
     nonce = int(time.time() * 1000)
     payload = {
@@ -39,3 +44,9 @@ def get_balance():
     for balance in r.json():
         if balance['currency'] == "USD":
             return balance['currency'] + ":" + balance['available']
+
+def main():
+    get_price("btcusd")
+
+if __name__ == "__main__":
+    main()
