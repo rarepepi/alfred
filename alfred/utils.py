@@ -3,7 +3,7 @@ def build_menu(buttons, n_cols, header_buttons=None, footer_buttons=None):
 
     if header_buttons:
         menu.insert(0, header_buttons)
-    
+
     if footer_buttons:
         menu.append(footer_buttons)
     return menu

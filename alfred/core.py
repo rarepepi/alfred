@@ -1,9 +1,14 @@
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-import utils
-import telegram
 import logging
+import os
+import sys
+from threading import Thread
+
 import config
 import gemini
+import telegram
+import utils
+from telegram.ext import (
+    CommandHandler, Updater, CallbackQueryHandler)
 
 # Enable logging
 logging.basicConfig(
@@ -11,69 +16,66 @@ logging.basicConfig(
     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
-commands = ['start', 'echo', 'gemini']
 
 
 # Telegram commands
 def start(bot, update):
     update.message.reply_text(
-        "Commands are the following: ", commands)
-
-
-def echo(bot, update):
-    update.message.reply_text(update.message.text)
+        "Hello and welcome!: ")
 
 
 def error(bot, update, error):
     logger.warning('Update "%s" caused error "%s"', update, error)
 
 
-def gemini_balance(bot, update):
-    update.message.reply_text(gemini.get_balance())
-
-
-def gemini_price(bot, update, args):
-    symbol = "".join(args)
-    symbol = "btcusd"
-    update.message.reply_text(gemini.get_price(symbol))
-
-
-# def gemini_commands(bot, update):
-#     custom_keys = [['/balance'], ['/price']]
-#     replay_markup = telegram.ReplyKeyboardMarkup(custom_keys)
-#     bot.send_message(
-#         text="Customer Keyboard Test",
-#         chat_id=update.message.chat_id,
-#         reply_markup=replay_markup)
-
-def main_menu(bot, update):
+def gemini_menu(bot, update):
     button_list = [
-        telegram.InlineKeyboardButton("Price", callback_data=gemini_price),
-        telegram.InlineKeyboardButton("Balance", callback_data=gemini_balance)
+        telegram.InlineKeyboardButton(
+            "BTC price", callback_data="gemini_btc_price"),
+        telegram.InlineKeyboardButton(
+            "BTC balance", callback_data="gemini_btc_balance")
 
     ]
     reply_markup = telegram.InlineKeyboardMarkup(
         utils.build_menu(button_list, n_cols=2))
     bot.send_message(
-        text="Eyyy",
-        reply_markup=reply_markup,
-        chat_id=update.message.chat_id)
-    
+        text="Options...",
+        chat_id=update.message.chat_id,
+        reply_markup=reply_markup
+        )
+
+
+def callback_handler(bot, update):
+    query = update.callback_query.data
+    if query == "gemini_btc_price":
+        text = gemini.get_btc_price()
+    elif query == "gemini_btc_balance":
+        text = gemini.get_btc_balance()
+    bot.send_message(
+        text=text,
+        chat_id=update.callback_query.message.chat.id
+    )
 
 
 def main():
     updater = Updater(config.telegram['token'])
     dp = updater.dispatcher
 
-    dp.add_handler(CommandHandler('start', start))
-    dp.add_handler(CommandHandler('echo', echo))
-    # dp.add_handler(CommandHandler('balance', gemini_balance))
-    # dp.add_handler(CommandHandler('price', gemini_price))
-    # dp.add_handler(CommandHandler('gemini', gemini_price, pass_args=True))
-    dp.add_handler(CommandHandler('gemini', main_menu))
+    def stop_and_restart():
+        updater.stop()
+        os.execl(sys.executable, sys.executable, * sys.argv)
 
-    dp.add_error_handler(error) 
-    dp.add_handler(MessageHandler(Filters.text, echo))
+    def restart(bot, update):
+        update.message.reply_text('🖥 restarting system...')
+        Thread(target=stop_and_restart).start()
+        update.message.reply_text('🖥 system back online!')
+
+    dp.add_handler(CommandHandler('start', start))
+    dp.add_handler(CommandHandler('gemini', gemini_menu))
+    dp.add_handler(CommandHandler('r', restart))
+    dp.add_handler(CallbackQueryHandler(callback_handler))
+    dp.add_error_handler(error)
+
     updater.start_polling()
     updater.idle()
 
