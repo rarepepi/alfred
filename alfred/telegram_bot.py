@@ -1,6 +1,5 @@
-from . import core
-from . import config
-from . import utils
+import core
+import utils
 
 import logging
 import os
