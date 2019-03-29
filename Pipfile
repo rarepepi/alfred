@@ -33,9 +33,9 @@ Automat = "==0.6.0"
 pyOpenSSL = "==18.0.0"
 service_identity = "==17.0.0"
 Twisted = "==18.4.0"
-python-telegram-bot = "*"
 "bs4" = "*"
 lxml = "*"
+python-telegram-bot = "*"
 
 [dev-packages]
 pylint = "*"
