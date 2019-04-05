@@ -1,13 +1,5 @@
-# TODO extensions need names, menus, and commands
-# TODO create default menues/commands like starting bot, restart, etc
-# TODO utils file to help create menues, etc.
-# TODO in core just check config and import all modules and create handlers/pass on api keys
-
-# TODO also need testing/logging/error handleing
-# TODO deployment
 import logging
 import config
-import modules
 import utils
 import importlib
 import os
@@ -42,8 +34,13 @@ class Alfred(object):
         modules = []
         for dict in extensions:
             if dict['active']:
-                module = importlib.import_module('modules.{}.core'.format(dict['name']).lower(), '.')
-                modules.append(module.Module())
+                try:
+                    mod_name = dict['name'].lower()
+                    module = importlib.import_module(
+                        f'modules.{mod_name}.core', '.')
+                    modules.append(module.Module())
+                except Exception as e:
+                    logger.error(e)
         return modules
 
     def add_default_handlers(self):
@@ -65,17 +62,19 @@ class Alfred(object):
     def main_menu(self, bot, update):
         query = update.callback_query
         logger.info("query: {}".format(query))
-        bot.edit_message_text(chat_id=query.message.chat_id,
+        bot.edit_message_text(
+            chat_id=query.message.chat_id,
             message_id=query.message.message_id,
             text="Commands",
             reply_markup=self.main_menu_keyboard())
-    
+
     def main_menu_keyboard(self):
         keyboard = utils.get_extension_keyboards()
         return InlineKeyboardMarkup(keyboard)
 
     def start(self, bot, update):
-        update.message.reply_text("Modules",
+        update.message.reply_text(
+            "Modules",
             reply_markup=self.main_menu_keyboard())
 
     def stop_and_restart(self):
