@@ -146,7 +146,7 @@ def main():
                 CommandHandler(
                     module,
                     get_menu(module)
-                )   
+                )
             )
 
     dp.add_handler(CommandHandler('start', start))
