@@ -1,4 +1,5 @@
 import logging
+from modules import AlfredModule
 from telegram import (
     InlineKeyboardMarkup,
     InlineKeyboardButton
@@ -10,7 +11,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-class Module():
+class Module(AlfredModule):
     def __init__(self):
         self.name = "gemini"
         self.commands = ['balance']
@@ -21,7 +22,8 @@ class Module():
 
     def main_menu(self, bot, update):
         query = update.callback_query
-        bot.edit_message_text(chat_id=query.message.chat_id,
+        bot.edit_message_text(
+            chat_id=query.message.chat_id,
             message_id=query.message.message_id,
             text="Commands",
             reply_markup=self.module_menu_keyboard())
@@ -32,8 +34,7 @@ class Module():
             keyboard.append(
                 [InlineKeyboardButton(
                     '{}'.format(command),
-                    callback_data='{}-{}'.format(
-                    self.name, command))]
+                    callback_data=f'{self.name}-{command}')]
                 )
         return keyboard
 
@@ -53,20 +54,6 @@ class Module():
         print("hello world3")
         return 100
 
-
-
-
-
-
-# class Gemini():
-#         def get_menu():
-#                 pass
-
-#         def get_commands():
-#                 pass
-
-#         def resolve_query():
-#                 pass
 
 #         url = "https://api.sandbox.gemini.com"
 #         gemini_api_key = config.geminiTestNet['apiKey']

@@ -15,7 +15,8 @@ class ModuleBasic():
 
     def main_menu(self, bot, update):
         query = update.callback_query
-        bot.edit_message_text(chat_id=query.message.chat_id,
+        bot.edit_message_text(
+            chat_id=query.message.chat_id,
             message_id=query.message.message_id,
             text="Commands",
             reply_markup=self.module_menu_keyboard())
@@ -26,8 +27,7 @@ class ModuleBasic():
             keyboard.append(
                 [InlineKeyboardButton(
                     '{}'.format(command),
-                    callback_data='{}-{}'.format(
-                    self.name, command))]
+                    callback_data=f'{self.name}-{command}')]
                 )
         return keyboard
 

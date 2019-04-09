@@ -45,7 +45,8 @@ class Alfred(object):
 
     def add_default_handlers(self):
         self.dp.add_handler(CommandHandler('start', self.start))
-        self.dp.add_handler(CallbackQueryHandler(self.main_menu, pattern='main'))
+        self.dp.add_handler(
+            CallbackQueryHandler(self.main_menu, pattern='main'))
         self.dp.add_handler(CommandHandler('restart', self.restart))
         self.dp.add_error_handler(self.error)
 

@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
 
-class Module(object):
+class AlfredModule(object):
 
     __metaclass__ = ABCMeta
 
@@ -15,7 +15,7 @@ class Module(object):
     def get_commands_keyboard(self, query): pass
 
     @abstractmethod
-    def module_menu_keyboard(self, query): pass∂
+    def module_menu_keyboard(self, query): pass
 
     @abstractmethod
     def callback_handler(self, query): pass
