@@ -22,7 +22,7 @@ class Module(AlfredModule):
     def __init__(self):
         self.name = "gemini"
         self.commands = ['balance']
-        self.url = "https://api.sandbox.gemini.com"
+        self.base_url = "https://api.gemini.com"
         self.api_key = keys['api_key']
         self.api_secret = keys['api_secret']
 
@@ -35,7 +35,7 @@ class Module(AlfredModule):
         bot.edit_message_text(
             chat_id=query.message.chat_id,
             message_id=query.message.message_id,
-            text="Commands",
+            text=f"{self.name.title()} Commands",
             reply_markup=self.module_menu_keyboard())
 
     def get_commands_keyboard(self):
@@ -60,25 +60,21 @@ class Module(AlfredModule):
             chat_id=update.callback_query.message.chat.id
         )
 
-    def balance(self):
-        return 200
+    def api_query(self, method, payload=None):
+        if payload is None:
+            payload = {}
+        request_url = self.base_url + method
 
-    def get_balance(self):
-        nonce = int(time.time() * 1000)
-        payload = {
-            "request": "/v1/balances",
-            "nonce": nonce
-        }
+        payload['request'] = method
+        payload['nonce'] = int(time.time() * 1000)
         b64_payload = base64.b64encode(
             json.dumps(payload).encode('utf-8'))
-        logger.info(f"base64: {b64_payload}")
 
         signature = hmac.new(
             self.api_secret.encode('utf-8'),
-            msfg=b64_payload,
-            digestmode=hashlib.sha384
+            b64_payload,
+            hashlib.sha384,
         ).hexdigest()
-        logger.info(f"signature: {signature}")
 
         headers = {
             'Content-Type': "text/plain",
@@ -88,7 +84,19 @@ class Module(AlfredModule):
             'X-GEMINI-SIGNATURE': signature,
             'Cache-Control': "no-cache"
         }
+
         r = requests.post(
-            self.url+"/v1/balances",
+            request_url,
             headers=headers)
-        print(r.json())
+        return r.json()
+
+    def balance(self):
+        response = "Asset \t | \t Amount\n --------------------------"
+        r_json = self.api_query('/v1/balances')
+        balances = [bal for bal in r_json if float(bal['amount']) > 0]
+        for balance in balances:
+            asset = balance['currency']
+            amount = balance['amount']
+            response = response + f"\n{asset} \t | \t {amount}"
+
+        return response

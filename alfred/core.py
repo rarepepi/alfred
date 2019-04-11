@@ -104,13 +104,19 @@ class Alfred(object):
         self.updater.idle()
 
 
-def main():
-    # al = Alfred()
-    # al.run()
+def test_module():
     from modules.gemini.core import Module
     client = Module()
-    client.get_balance()
+    client.balance()
+
+
+def main():
+    al = Alfred()
+    al.run()
 
 
 if __name__ == '__main__':
+    testing_module = False
+    if test_module:
+        test_module()
     main()
