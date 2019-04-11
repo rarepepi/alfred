@@ -46,6 +46,9 @@ class Module(AlfredModule):
                     '{}'.format(command),
                     callback_data=f'{self.name}-{command}')]
                 )
+        keyboard.append([InlineKeyboardButton(
+                    '<-- Main',
+                    callback_data="main")])
         return keyboard
 
     def module_menu_keyboard(self):

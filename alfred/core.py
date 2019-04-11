@@ -66,7 +66,7 @@ class Alfred(object):
         bot.edit_message_text(
             chat_id=query.message.chat_id,
             message_id=query.message.message_id,
-            text="Commands",
+            text="Main Commands",
             reply_markup=self.main_menu_keyboard())
 
     def main_menu_keyboard(self):
