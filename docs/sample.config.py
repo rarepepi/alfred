@@ -13,10 +13,6 @@ extensions = [
     }
 ]
 
-gemini = {
-    "apiKey": "",
-    "apiSecret": ""
-}
 
 telegram = {
     "token": ""

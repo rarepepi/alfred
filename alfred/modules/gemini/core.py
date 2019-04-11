@@ -1,5 +1,12 @@
 import logging
-from modules import AlfredModule
+import time
+import json
+import base64
+import hmac
+import hashlib
+import requests
+from ..module import AlfredModule
+from .config import keys
 from telegram import (
     InlineKeyboardMarkup,
     InlineKeyboardButton
@@ -15,6 +22,9 @@ class Module(AlfredModule):
     def __init__(self):
         self.name = "gemini"
         self.commands = ['balance']
+        self.url = "https://api.sandbox.gemini.com"
+        self.api_key = keys['api_key']
+        self.api_secret = keys['api_secret']
 
     def resolve_query(self, query):
         if query == "gemini-balance":
@@ -51,51 +61,34 @@ class Module(AlfredModule):
         )
 
     def balance(self):
-        print("hello world3")
-        return 100
+        return 200
 
+    def get_balance(self):
+        nonce = int(time.time() * 1000)
+        payload = {
+            "request": "/v1/balances",
+            "nonce": nonce
+        }
+        b64_payload = base64.b64encode(
+            json.dumps(payload).encode('utf-8'))
+        logger.info(f"base64: {b64_payload}")
 
-#         url = "https://api.sandbox.gemini.com"
-#         gemini_api_key = config.geminiTestNet['apiKey']
-#         gemini_api_secret = config.geminiTestNet['apiSecret'].encode('utf-8')
+        signature = hmac.new(
+            self.api_secret.encode('utf-8'),
+            msfg=b64_payload,
+            digestmode=hashlib.sha384
+        ).hexdigest()
+        logger.info(f"signature: {signature}")
 
-#         def get_price(symbol):
-#             r = requests.get(url+"/v1/pubticker/"+symbol)
-#             price = r.json()
-#             return price['last']
-
-#         def get_btc_price():
-#             return get_price("btcusd")
-
-#         def get_btc_balance():
-#             return get_balance("BTC")
-
-#         def get_balance(symbol):
-#             nonce = int(time.time() * 1000)
-#             payload = {
-#                 "request": "/v1/balances",
-#                 "nonce": nonce
-#             }
-#             b64_payload = base64.b64encode(
-#                 json.dumps(payload).encode('utf-8'))
-#             signature = hmac.new(
-#                 gemini_api_secret,
-#                 b64_payload,
-#                 hashlib.sha384
-#             ).hexdigest()
-#             headers = {
-#                 'Content-Type': "text/plain",
-#                 'Content-Length': "0",
-#                 'X-GEMINI-APIKEY': gemini_api_key,
-#                 'X-GEMINI-PAYLOAD': b64_payload.decode('utf-8'),
-#                 'X-GEMINI-SIGNATURE': signature,
-#                 'Cache-Control': "no-cache"
-#             }
-
-#             r = requests.post(
-#                 url+"/v1/balances",
-#                 headers=headers)
-
-#             for balance in r.json():
-#                 if balance['currency'] == symbol:
-#                     return balance['currency'] + ":" + balance['available']
+        headers = {
+            'Content-Type': "text/plain",
+            'Content-Length': "0",
+            'X-GEMINI-APIKEY': self.api_key,
+            'X-GEMINI-PAYLOAD': b64_payload,
+            'X-GEMINI-SIGNATURE': signature,
+            'Cache-Control': "no-cache"
+        }
+        r = requests.post(
+            self.url+"/v1/balances",
+            headers=headers)
+        print(r.json())

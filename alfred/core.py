@@ -105,8 +105,11 @@ class Alfred(object):
 
 
 def main():
-    al = Alfred()
-    al.run()
+    # al = Alfred()
+    # al.run()
+    from modules.gemini.core import Module
+    client = Module()
+    client.get_balance()
 
 
 if __name__ == '__main__':
