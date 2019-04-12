@@ -25,23 +25,29 @@ class Alfred(object):
     def __init__(self):
         self.updater = Updater(config.telegram['token'])
         self.dp = self.updater.dispatcher
-        self.modules = self.import_active_extensions()
+        self.chat_id = config.telegram['chat_id']
+        self.active_modules = self.import_active_modules()
         self.add_default_handlers()
         self.add_module_handlers()
 
-    def import_active_extensions(self):
-        extensions = config.extensions
-        modules = []
-        for dict in extensions:
-            if dict['active']:
-                try:
-                    mod_name = dict['name'].lower()
-                    module = importlib.import_module(
-                        f'modules.{mod_name}.core', '.')
-                    modules.append(module.Module())
-                except Exception as e:
-                    logger.error(e)
-        return modules
+    def check_auth(self, message):
+        if str(message.chat_id) == self.chat_id:
+            logger.info(f"User: {message.chat.username}, authenticated")
+            return True
+        return False
+
+    def import_active_modules(self):
+        active = [mod for mod in config.modules if mod['active']]
+        module_objs = []
+        for mod in active:
+            try:
+                mod_name = mod['name'].lower()
+                module = importlib.import_module(
+                    f'modules.{mod_name}.core', '.')
+                module_objs.append(module.Module(self.chat_id))
+            except Exception as e:
+                logger.error(f"could not import extension: {e}")
+        return module_objs
 
     def add_default_handlers(self):
         self.dp.add_handler(CommandHandler('start', self.start))
@@ -51,7 +57,7 @@ class Alfred(object):
         self.dp.add_error_handler(self.error)
 
     def add_module_handlers(self):
-        for module in self.modules:
+        for module in self.active_modules:
             logger.info("Adding module handler: {}".format(module.name))
             self.dp.add_handler(
                 CallbackQueryHandler(
@@ -62,21 +68,22 @@ class Alfred(object):
 
     def main_menu(self, bot, update):
         query = update.callback_query
-        logger.info("query: {}".format(query))
-        bot.edit_message_text(
-            chat_id=query.message.chat_id,
-            message_id=query.message.message_id,
-            text="Main Commands",
-            reply_markup=self.main_menu_keyboard())
+        if self.check_auth(update.message):
+            bot.edit_message_text(
+                chat_id=query.message.chat_id,
+                message_id=query.message.message_id,
+                text="Main Commands",
+                reply_markup=self.main_menu_keyboard())
 
     def main_menu_keyboard(self):
         keyboard = utils.get_extension_keyboards()
         return InlineKeyboardMarkup(keyboard)
 
     def start(self, bot, update):
-        update.message.reply_text(
-            "Modules",
-            reply_markup=self.main_menu_keyboard())
+        if self.check_auth(update.message):
+            update.message.reply_text(
+                "Modules",
+                reply_markup=self.main_menu_keyboard())
 
     def stop_and_restart(self):
         self.updater.stop()
@@ -87,9 +94,10 @@ class Alfred(object):
         )
 
     def restart(self, bot, update):
-        update.message.reply_text('🖥 restarting system...')
-        Thread(target=self.stop_and_restart).start()
-        update.message.reply_text('🖥 system back online!')
+        if self.check_auth(update.message):
+            update.message.reply_text('🖥 restarting system...')
+            Thread(target=self.stop_and_restart).start()
+            update.message.reply_text('🖥 system back online!')
 
     def error(self, bot, update, error):
         logger.warning(
@@ -105,9 +113,10 @@ class Alfred(object):
 
 
 def test_module():
-    from modules.gemini.core import Module
-    client = Module()
-    client.balance()
+    # from modules.gemini.core import Module
+    # client = Module()
+    # client.balance()
+    pass
 
 
 def main():

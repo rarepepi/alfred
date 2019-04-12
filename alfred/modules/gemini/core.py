@@ -19,12 +19,19 @@ logger = logging.getLogger(__name__)
 
 
 class Module(AlfredModule):
-    def __init__(self):
+    def __init__(self, chat_id):
         self.name = "gemini"
+        self.chat_id = chat_id
         self.commands = ['balance']
         self.base_url = "https://api.gemini.com"
         self.api_key = keys['api_key']
         self.api_secret = keys['api_secret']
+
+    def check_auth(self, message):
+        if str(message.chat_id) == self.chat_id:
+            logger.info(f"User: {message.chat.username}, authenticated")
+            return True
+        return False
 
     def resolve_query(self, query):
         if query == "gemini-balance":
@@ -56,6 +63,7 @@ class Module(AlfredModule):
         return InlineKeyboardMarkup(keyboard)
 
     def callback_handler(self, bot, update):
+        # if self.check_auth(update.message):
         query = update.callback_query.data
         text = self.resolve_query(query)
         bot.send_message(

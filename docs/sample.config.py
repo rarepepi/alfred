@@ -15,5 +15,6 @@ extensions = [
 
 
 telegram = {
-    "token": ""
+    "token": "",
+    "chat_id": ""
 }

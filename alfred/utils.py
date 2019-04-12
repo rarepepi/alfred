@@ -13,13 +13,13 @@ def build_menu(buttons, n_cols, header_buttons=None, footer_buttons=None):
     return menu
 
 
-def get_extension_keyboards():
+def get_module_keyboards():
     keyboard = []
-    for dict in config.extensions:
-        if dict['active']:
-            keyboard.append(
-                [InlineKeyboardButton(
-                    '{}'.format(dict['name']),
-                    callback_data='{}-main'.format(dict['name'].lower()))]
-            )
+    active = [mod for mod in config.modules if mod['active']]
+    for mod in active:
+        keyboard.append(
+            [InlineKeyboardButton(
+                '{}'.format(mod['name']),
+                callback_data='{}-main'.format(mod['name'].lower()))]
+        )
     return keyboard
