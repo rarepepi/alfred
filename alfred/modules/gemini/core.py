@@ -27,18 +27,16 @@ class Module(AlfredModule):
         self.api_key = keys['api_key']
         self.api_secret = keys['api_secret']
 
+    def resolve_command(self, command):
+        if command == "gemini-balance":
+            return self.balance()
+
     def check_auth(self, message):
         if str(message.chat_id) == self.chat_id:
             logger.info(f"User: {message.chat.username}, authenticated")
             return True
         return False
         logger.info(f"User: {message.chat.username}, failed auth")
-
-    def resolve_query(self, query):
-        # if query == "gemini-main":
-        #     return self.main_menu()
-        if query == "gemini-balance":
-            return self.balance()
 
     def main_menu(self, bot, update):
         query = update.callback_query
@@ -67,8 +65,8 @@ class Module(AlfredModule):
 
     def callback_handler(self, bot, update):
         if self.check_auth(update.callback_query.message):
-            query = update.callback_query.data
-            text = self.resolve_query(query)
+            command = update.callback_query.data
+            text = self.resolve_command(command)
             bot.send_message(
                 text=text,
                 chat_id=update.callback_query.message.chat.id
