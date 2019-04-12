@@ -52,23 +52,26 @@ class Alfred(object):
     def add_default_handlers(self):
         self.dp.add_handler(CommandHandler('start', self.start))
         self.dp.add_handler(
-            CallbackQueryHandler(self.main_menu, pattern='main'))
+            CallbackQueryHandler(self.main_menu, pattern='core-main'))
         self.dp.add_handler(CommandHandler('restart', self.restart))
         self.dp.add_error_handler(self.error)
 
     def add_module_handlers(self):
         for module in self.active_modules:
-            logger.info("Adding module handler: {}".format(module.name))
+            logger.info(f"Integrating {module.name}")
             self.dp.add_handler(
                 CallbackQueryHandler(
-                    module.main_menu, pattern='{}-main'.format(module.name)))
+                    module.main_menu, pattern=f'{module.name}-main'))
             self.dp.add_handler(
                 CallbackQueryHandler(
                     module.callback_handler))
 
     def main_menu(self, bot, update):
         query = update.callback_query
-        if self.check_auth(update.message):
+        message = update.message
+        if message is None:
+            message = query.message
+        if self.check_auth(message):
             bot.edit_message_text(
                 chat_id=query.message.chat_id,
                 message_id=query.message.message_id,
@@ -76,7 +79,7 @@ class Alfred(object):
                 reply_markup=self.main_menu_keyboard())
 
     def main_menu_keyboard(self):
-        keyboard = utils.get_extension_keyboards()
+        keyboard = utils.get_module_keyboards()
         return InlineKeyboardMarkup(keyboard)
 
     def start(self, bot, update):

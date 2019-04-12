@@ -32,8 +32,11 @@ class Module(AlfredModule):
             logger.info(f"User: {message.chat.username}, authenticated")
             return True
         return False
+        logger.info(f"User: {message.chat.username}, failed auth")
 
     def resolve_query(self, query):
+        # if query == "gemini-main":
+        #     return self.main_menu()
         if query == "gemini-balance":
             return self.balance()
 
@@ -54,8 +57,8 @@ class Module(AlfredModule):
                     callback_data=f'{self.name}-{command}')]
                 )
         keyboard.append([InlineKeyboardButton(
-                    '<-- Main',
-                    callback_data="main")])
+                    '<-- back to main',
+                    callback_data='core-main')])
         return keyboard
 
     def module_menu_keyboard(self):
@@ -63,13 +66,13 @@ class Module(AlfredModule):
         return InlineKeyboardMarkup(keyboard)
 
     def callback_handler(self, bot, update):
-        # if self.check_auth(update.message):
-        query = update.callback_query.data
-        text = self.resolve_query(query)
-        bot.send_message(
-            text=text,
-            chat_id=update.callback_query.message.chat.id
-        )
+        if self.check_auth(update.callback_query.message):
+            query = update.callback_query.data
+            text = self.resolve_query(query)
+            bot.send_message(
+                text=text,
+                chat_id=update.callback_query.message.chat.id
+            )
 
     def api_query(self, method, payload=None):
         if payload is None:

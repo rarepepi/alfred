@@ -20,6 +20,6 @@ def get_module_keyboards():
         keyboard.append(
             [InlineKeyboardButton(
                 '{}'.format(mod['name']),
-                callback_data='{}-main'.format(mod['name'].lower()))]
+                callback_data=f"{mod['name'].lower()}-main")]
         )
     return keyboard
