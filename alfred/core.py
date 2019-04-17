@@ -128,7 +128,7 @@ def main():
 
 
 if __name__ == '__main__':
-    testing_modules = True
+    testing_modules = False
     if testing_modules:
         test_module()
     else:
