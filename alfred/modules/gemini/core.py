@@ -115,16 +115,19 @@ class Module(AlfredModule):
         return float(ticker['last'])
 
     def balance(self):
-        response = "Asset\t|\tAmount@Price\t|\tUSD\n------------------------------------------------------"
+        response = "Asset\t|\tAmount@Price\t|\tUSD\n-----------------------------"
         r_json = self.private_api_query('/balances')
         balances = [bal for bal in r_json if float(bal['amount']) > 0]
+        total_usd = 0
         for balance in balances:
             asset = balance['currency']
-            amount = float(balance['amount'])
+            amount = round(float(balance['amount']), 5)
             if asset == "USD":
                 price = 1
             else:
                 price = self.price(asset)
             usd_value = round(price * amount, 2)
+            total_usd += usd_value
             response = response + f"\n{asset}\t|\t{amount}@{price}\t|\t{usd_value}"
+        response = response + f"\n\nTotal: {total_usd}"
         return response

@@ -128,8 +128,8 @@ def main():
 
 
 if __name__ == '__main__':
-    testing_module = False
-    if test_module:
+    testing_modules = True
+    if testing_modules:
         test_module()
     else:
         main()
