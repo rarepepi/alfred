@@ -116,10 +116,10 @@ class Alfred(object):
 
 
 def test_module():
-    # from modules.gemini.core import Module
-    # client = Module()
-    # client.balance()
-    pass
+    from modules.gemini.core import Module
+    client = Module(config.telegram['chat_id'])
+    balance = client.balance()
+    print(balance)
 
 
 def main():
@@ -131,4 +131,5 @@ if __name__ == '__main__':
     testing_module = False
     if test_module:
         test_module()
-    main()
+    else:
+        main()

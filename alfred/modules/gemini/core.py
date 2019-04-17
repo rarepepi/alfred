@@ -23,7 +23,7 @@ class Module(AlfredModule):
         self.name = "gemini"
         self.chat_id = chat_id
         self.commands = ['balance']
-        self.base_url = "https://api.gemini.com"
+        self.base_url = "https://api.gemini.com/v1"
         self.api_key = keys['api_key']
         self.api_secret = keys['api_secret']
 
@@ -72,12 +72,12 @@ class Module(AlfredModule):
                 chat_id=update.callback_query.message.chat.id
             )
 
-    def api_query(self, method, payload=None):
+    def private_api_query(self, method, payload=None):
         if payload is None:
             payload = {}
         request_url = self.base_url + method
 
-        payload['request'] = method
+        payload['request'] = '/v1' + method
         payload['nonce'] = int(time.time() * 1000)
         b64_payload = base64.b64encode(
             json.dumps(payload).encode('utf-8'))
@@ -102,13 +102,29 @@ class Module(AlfredModule):
             headers=headers)
         return r.json()
 
+    def public_api_query(self, method, payload=None):
+        if payload is None:
+            payload = {}
+        request_url = self.base_url + method
+
+        r = requests.get(request_url)
+        return r.json()
+
+    def price(self, asset):
+        ticker = self.public_api_query(f'/pubticker/{asset.lower()}usd')
+        return float(ticker['last'])
+
     def balance(self):
-        response = "Asset \t | \t Amount\n --------------------------"
-        r_json = self.api_query('/v1/balances')
+        response = "Asset\t|\tAmount@Price\t|\tUSD\n------------------------------------------------------"
+        r_json = self.private_api_query('/balances')
         balances = [bal for bal in r_json if float(bal['amount']) > 0]
         for balance in balances:
             asset = balance['currency']
-            amount = balance['amount']
-            response = response + f"\n{asset} \t | \t {amount}"
-
+            amount = float(balance['amount'])
+            if asset == "USD":
+                price = 1
+            else:
+                price = self.price(asset)
+            usd_value = round(price * amount, 2)
+            response = response + f"\n{asset}\t|\t{amount}@{price}\t|\t{usd_value}"
         return response
