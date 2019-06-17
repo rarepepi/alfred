@@ -23,37 +23,56 @@ logger = logging.getLogger(__name__)
 
 class Alfred(object):
     def __init__(self):
+        # Set the updater server/polling with api token
         self.updater = Updater(config.telegram['token'])
+
+        # Create dispatcher for messages
         self.dp = self.updater.dispatcher
+
+        # Use the chat id to identify if the bot is in the proper chat room
         self.chat_id = config.telegram['chat_id']
+
+        # Imports all of the modules that are marked as being active
         self.active_modules = self.import_active_modules()
+
+        # Adds the default handlers used for basic commands/menu
         self.add_default_handlers()
+        
+        # Adds the handlers for the modules and their respective menus
         self.add_module_handlers()
 
+    # Used to check if a the message matches the chat_id in Alfred
     def check_auth(self, message):
         if str(message.chat_id) == self.chat_id:
             logger.info(f"User: {message.chat.username}, authenticated")
             return True
         return False
 
+    # Attempts to import all active modules
     def import_active_modules(self):
+        # Creates a list of the all the modules which a true value in active
         active = [mod for mod in config.modules if mod['active']]
-        module_objs = []
+
+        # Goes through the module 
+        active_and_imported = []
         for mod in active:
             try:
                 mod_name = mod['name'].lower()
                 module = importlib.import_module(
                     f'modules.{mod_name}.core', '.')
-                module_objs.append(module.Module(self.chat_id))
+                active_and_imported.append(module.Module(self.chat_id))
             except Exception as e:
                 logger.error(f"could not import extension: {e}")
-        return module_objs
+        return active_and_imported
 
     def add_default_handlers(self):
-        self.dp.add_handler(CommandHandler('start', self.start))
+        self.dp.add_handler(
+            CommandHandler('start', self.start))
         self.dp.add_handler(
             CallbackQueryHandler(self.main_menu, pattern='core-main'))
-        self.dp.add_handler(CommandHandler('restart', self.restart))
+        self.dp.add_handler(
+            CommandHandler('restart', self.restart))
+
         self.dp.add_error_handler(self.error)
 
     def add_module_handlers(self):
