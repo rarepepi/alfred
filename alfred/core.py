@@ -39,7 +39,7 @@ class Alfred(object):
         self.add_default_handlers()
         
         # Adds the handlers for the modules and their respective menus
-        self.add_module_handlers()
+        self.add_active_module_handlers()
 
     # Used to check if a the message matches the chat_id in Alfred
     def check_auth(self, message):
@@ -66,6 +66,7 @@ class Alfred(object):
         return active_and_imported
 
     def add_default_handlers(self):
+        logger.info("Adding default handlers")
         self.dp.add_handler(
             CommandHandler('start', self.start))
         self.dp.add_handler(
@@ -75,7 +76,7 @@ class Alfred(object):
 
         self.dp.add_error_handler(self.error)
 
-    def add_module_handlers(self):
+    def add_active_module_handlers(self):
         for module in self.active_modules:
             logger.info(f"Integrating {module.name}")
             self.dp.add_handler(
@@ -98,7 +99,7 @@ class Alfred(object):
                 reply_markup=self.main_menu_keyboard())
 
     def main_menu_keyboard(self):
-        keyboard = utils.get_module_keyboards()
+        keyboard = utils.get_menus_of_active_modules()
         return InlineKeyboardMarkup(keyboard)
 
     def start(self, bot, update):

@@ -13,7 +13,7 @@ def build_menu(buttons, n_cols, header_buttons=None, footer_buttons=None):
     return menu
 
 
-def get_module_keyboards():
+def get_menus_of_active_modules():
     keyboard = []
     active = [mod for mod in config.modules if mod['active']]
     for mod in active:
