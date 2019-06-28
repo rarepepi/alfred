@@ -133,23 +133,3 @@ class Alfred(object):
         logging.info("Starting bot polling")
         self.updater.start_polling()
         self.updater.idle()
-
-
-def test_module():
-    from modules.gemini.core import Module
-    client = Module(config.telegram['chat_id'])
-    balance = client.balance()
-    print(balance)
-
-
-def main():
-    al = Alfred()
-    al.run()
-
-
-if __name__ == '__main__':
-    testing_modules = False
-    if testing_modules:
-        test_module()
-    else:
-        main()
