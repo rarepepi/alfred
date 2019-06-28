@@ -5,8 +5,8 @@ import base64
 import hmac
 import hashlib
 import requests
-from ..module import AlfredModule
-from .config import keys
+from .module import AlfredModule
+from .config import gemini_keys
 from telegram import (
     InlineKeyboardMarkup,
     InlineKeyboardButton
@@ -24,8 +24,8 @@ class Module(AlfredModule):
         self.chat_id = chat_id
         self.commands = ['balance']
         self.base_url = "https://api.gemini.com/v1"
-        self.api_key = keys['api_key']
-        self.api_secret = keys['api_secret']
+        self.api_key = gemini_keys['api_key']
+        self.api_secret = gemini_keys['api_secret']
 
     def resolve_command(self, command):
         if command == "gemini-balance":

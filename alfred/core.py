@@ -1,6 +1,6 @@
 import logging
-import config
-import utils
+import .config
+import .utils
 import importlib
 import os
 import sys
