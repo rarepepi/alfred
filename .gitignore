@@ -1,5 +1,7 @@
-config.py
 __pycache__
 .vscode
 .DS_Store
+
+
 deploy.sh
+config.py
