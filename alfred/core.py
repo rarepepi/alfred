@@ -1,6 +1,7 @@
-import logging
 import .config
 import .utils
+
+import logging
 import importlib
 import os
 import sys
@@ -133,3 +134,23 @@ class Alfred(object):
         logging.info("Starting bot polling")
         self.updater.start_polling()
         self.updater.idle()
+
+
+def main():
+    al = Alfred()
+    al.run()
+
+
+def test_module():
+    from modules.gemini import Module
+    client = Module(config.telegram['chat_id'])
+    balance = client.balance()
+    print(balance)
+
+
+if __name__ == '__main__':
+    testing_modules = False
+    if testing_modules:
+        test_module()
+    else:
+        main()
