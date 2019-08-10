@@ -1,6 +1,4 @@
-import .config
-import .utils
-
+from . import config, utils
 import logging
 import importlib
 import os
@@ -27,14 +25,14 @@ class Alfred(object):
         # Set the updater server/polling with api token
         self.updater = Updater(config.telegram['token'])
 
-        # Create dispatcher for messages
+        # Get dispatcher for messages
         self.dp = self.updater.dispatcher
 
         # Use the chat id to identify if the bot is in the proper chat room
         self.chat_id = config.telegram['chat_id']
 
         # Imports all of the modules that are marked as being active
-        self.active_modules = self.import_active_modules()
+        self.active_modules = self.import_active_modules(config.modules)
 
         # Adds the default handlers used for basic commands/menu
         self.add_default_handlers()
@@ -50,9 +48,10 @@ class Alfred(object):
         return False
 
     # Attempts to import all active modules
-    def import_active_modules(self):
+    def import_active_modules(self, modules):
+        logger.info("Importing active modules ...")
         # Creates a list of the all the modules which a true value in active
-        active = [mod for mod in config.modules if mod['active']]
+        active = [mod for mod in modules if mod['active']]
 
         # Goes through the module 
         active_and_imported = []
@@ -62,12 +61,13 @@ class Alfred(object):
                 module = importlib.import_module(
                     f'modules.{mod_name}.core', '.')
                 active_and_imported.append(module.Module(self.chat_id))
+                logger.info(f"{mod_name} module imported")
             except Exception as e:
                 logger.error(f"could not import extension: {e}")
         return active_and_imported
 
     def add_default_handlers(self):
-        logger.info("Adding default handlers")
+        logger.info("Adding default handlers ...")
         self.dp.add_handler(
             CommandHandler('start', self.start))
         self.dp.add_handler(
@@ -79,7 +79,7 @@ class Alfred(object):
 
     def add_active_module_handlers(self):
         for module in self.active_modules:
-            logger.info(f"Integrating {module.name}")
+            logger.info(f"Adding menu handlers for {module.name} module")
             self.dp.add_handler(
                 CallbackQueryHandler(
                     module.main_menu, pattern=f'{module.name}-main'))
