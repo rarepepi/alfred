@@ -19,9 +19,8 @@ logger = logging.getLogger(__name__)
 
 
 class Module(AlfredModule):
-    def __init__(self, chat_id):
+    def __init__(self):
         self.name = "gemini"
-        self.chat_id = chat_id
         self.commands = [
             ('balance', self.get_balance),
         ]
