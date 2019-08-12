@@ -67,7 +67,7 @@ class Alfred(object):
             error
         )
 
-    def run(self):
+    def spin_up(self):
         logging.info("Starting bot polling ...")
         self.updater.start_polling()
         self.updater.idle()
@@ -139,7 +139,7 @@ class Alfred(object):
 def main():
     logger.info("Starting Alfred server ...")
     al = Alfred()
-    al.run()
+    al.spin_up()
 
 
 def test_module():
