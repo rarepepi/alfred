@@ -40,6 +40,38 @@ class Alfred(object):
         # Adds the handlers for the modules and their respective menus
         self.add_active_module_handlers()
 
+    def start(self, bot, update):
+        if self.check_auth(update.message):
+            update.message.reply_text(
+                "Modules",
+                reply_markup=self.main_menu_keyboard())
+
+    def stop_and_restart(self):
+        self.updater.stop()
+        os.execl(
+            sys.executable,
+            sys.executable,
+            * sys.argv
+        )
+
+    def restart(self, bot, update):
+        if self.check_auth(update.message):
+            update.message.reply_text('🖥 restarting system...')
+            Thread(target=self.stop_and_restart).start()
+            update.message.reply_text('🖥 system back online!')
+
+    def error(self, bot, update, error):
+        logger.warning(
+            'Update "%s" caused error "%s"',
+            update,
+            error
+        )
+
+    def run(self):
+        logging.info("Starting bot polling ...")
+        self.updater.start_polling()
+        self.updater.idle()
+    
     # Used to check if a the message matches the chat_id in Alfred
     def check_auth(self, message):
         if str(message.chat_id) == self.chat_id:
@@ -103,40 +135,9 @@ class Alfred(object):
         keyboard = utils.get_menus_of_active_modules()
         return InlineKeyboardMarkup(keyboard)
 
-    def start(self, bot, update):
-        if self.check_auth(update.message):
-            update.message.reply_text(
-                "Modules",
-                reply_markup=self.main_menu_keyboard())
-
-    def stop_and_restart(self):
-        self.updater.stop()
-        os.execl(
-            sys.executable,
-            sys.executable,
-            * sys.argv
-        )
-
-    def restart(self, bot, update):
-        if self.check_auth(update.message):
-            update.message.reply_text('🖥 restarting system...')
-            Thread(target=self.stop_and_restart).start()
-            update.message.reply_text('🖥 system back online!')
-
-    def error(self, bot, update, error):
-        logger.warning(
-            'Update "%s" caused error "%s"',
-            update,
-            error
-        )
-
-    def run(self):
-        logging.info("Starting bot polling")
-        self.updater.start_polling()
-        self.updater.idle()
-
 
 def main():
+    logger.info("Starting Alfred server ...")
     al = Alfred()
     al.run()
 
