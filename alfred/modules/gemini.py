@@ -22,7 +22,9 @@ class Module(AlfredModule):
     def __init__(self, chat_id):
         self.name = "gemini"
         self.chat_id = chat_id
-        self.commands = ['balance']
+        self.commands = [
+            ('balance', self.get_balance),
+        ]
         self.base_url = "https://api.gemini.com/v1"
         self.api_key = gemini_keys['api_key']
         self.api_secret = gemini_keys['api_secret']
@@ -30,10 +32,11 @@ class Module(AlfredModule):
     def main_menu(self, bot, update):
         keyboard = []
         for command in self.commands:
+            command_name = command[0]
             keyboard.append(
                 [InlineKeyboardButton(
-                    '{}'.format(command),
-                    callback_data=f'{self.name}-{command}')]
+                    '{}'.format(command_name),
+                    callback_data=f'{self.name}-{command_name}')]
                 )
         keyboard.append(
             [InlineKeyboardButton('🔙 main menu', callback_data='core-main')])
@@ -45,22 +48,11 @@ class Module(AlfredModule):
             text=f"{self.name.title()} Commands",
             reply_markup=InlineKeyboardMarkup(keyboard))
 
-    def resolve_command(self, command):
-        if command == "gemini-balance":
-            return self.balance()
-
-    def check_auth(self, message):
-        if str(message.chat_id) == self.chat_id:
-            logger.info(f"User: {message.chat.username}, authenticated")
-            return True
-        return False
-        logger.info(f"User: {message.chat.username}, failed auth")
-
     def callback_handler(self, bot, update):
         msg = update.callback_query.message
         if self.check_auth(msg):
             command = update.callback_query.data
-            text = self.resolve_command(command)
+            text = self.commands[command]
             bot.send_message(
                 text=text,
                 chat_id=update.callback_query.message.chat.id
@@ -108,7 +100,7 @@ class Module(AlfredModule):
         ticker = self.public_api_query(f'/pubticker/{asset.lower()}usd')
         return float(ticker['last'])
 
-    def balance(self):
+    def get_balance(self):
         response = "Asset\t|\tAmount@Price\t|\tUSD\n-----------------------------"
         r_json = self.private_api_query('/balances')
         balances = [bal for bal in r_json if float(bal['amount']) > 0]
