@@ -1,4 +1,4 @@
-from . import config, utils
+import config, utils
 import logging
 import importlib
 import os
@@ -90,8 +90,9 @@ class Alfred(object):
         for mod in active:
             try:
                 mod_name = mod['name'].lower()
+                logger.info(f"Attemping to import {mod_name}...")
                 module = importlib.import_module(
-                    f'modules.{mod_name}.core', '.')
+                    f'.{mod_name}', 'modules')
                 active_and_imported.append(module.Module(self.chat_id))
                 logger.info(f"{mod_name} module imported")
             except Exception as e:
