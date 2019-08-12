@@ -11,10 +11,4 @@ class AlfredModule(object):
     def main_menu(self): pass
 
     @abstractmethod
-    def get_commands_keyboard(self, query): pass
-
-    @abstractmethod
-    def module_menu_keyboard(self, query): pass
-
-    @abstractmethod
     def callback_handler(self, query): pass
