@@ -27,6 +27,24 @@ class Module(AlfredModule):
         self.api_key = gemini_keys['api_key']
         self.api_secret = gemini_keys['api_secret']
 
+    def main_menu(self, bot, update):
+        keyboard = []
+        for command in self.commands:
+            keyboard.append(
+                [InlineKeyboardButton(
+                    '{}'.format(command),
+                    callback_data=f'{self.name}-{command}')]
+                )
+        keyboard.append(
+            [InlineKeyboardButton('🔙 main menu', callback_data='core-main')])
+
+        msg = update.callback_query.query.message
+        bot.edit_message_text(
+            chat_id=msg.chat_id,
+            message_id=msg.message_id,
+            text=f"{self.name.title()} Commands",
+            reply_markup=InlineKeyboardMarkup(keyboard))
+
     def resolve_command(self, command):
         if command == "gemini-balance":
             return self.balance()
@@ -38,33 +56,9 @@ class Module(AlfredModule):
         return False
         logger.info(f"User: {message.chat.username}, failed auth")
 
-    def main_menu(self, bot, update):
-        query = update.callback_query
-        bot.edit_message_text(
-            chat_id=query.message.chat_id,
-            message_id=query.message.message_id,
-            text=f"{self.name.title()} Commands",
-            reply_markup=self.module_menu_keyboard())
-
-    def get_commands_keyboard(self):
-        keyboard = []
-        for command in self.commands:
-            keyboard.append(
-                [InlineKeyboardButton(
-                    '{}'.format(command),
-                    callback_data=f'{self.name}-{command}')]
-                )
-        keyboard.append([InlineKeyboardButton(
-                    '<-- back to main',
-                    callback_data='core-main')])
-        return keyboard
-
-    def module_menu_keyboard(self):
-        keyboard = self.get_commands_keyboard()
-        return InlineKeyboardMarkup(keyboard)
-
     def callback_handler(self, bot, update):
-        if self.check_auth(update.callback_query.message):
+        msg = update.callback_query.message
+        if self.check_auth(msg):
             command = update.callback_query.data
             text = self.resolve_command(command)
             bot.send_message(
