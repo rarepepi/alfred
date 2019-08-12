@@ -93,7 +93,7 @@ class Alfred(object):
                 logger.info(f"Attemping to import {mod_name}...")
                 module = importlib.import_module(
                     f'.{mod_name}', 'modules')
-                active_and_imported.append(module.Module(self.chat_id))
+                active_and_imported.append(module.Module())
                 logger.info(f"{mod_name} module imported")
             except Exception as e:
                 logger.error(f"could not import extension: {e}")

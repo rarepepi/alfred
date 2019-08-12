@@ -40,7 +40,7 @@ class Module(AlfredModule):
         keyboard.append(
             [InlineKeyboardButton('🔙 main menu', callback_data='core-main')])
 
-        msg = update.callback_query.query.message
+        msg = update.callback_query.message
         bot.edit_message_text(
             chat_id=msg.chat_id,
             message_id=msg.message_id,
@@ -51,7 +51,9 @@ class Module(AlfredModule):
         msg = update.callback_query.message
         if self.check_auth(msg):
             command = update.callback_query.data
-            text = self.commands[command]
+            func = next(
+                cmd for cmd in self.commands if f"{self.name}-{cmd[0]}" == command)[1]
+            text = func()
             bot.send_message(
                 text=text,
                 chat_id=update.callback_query.message.chat.id
