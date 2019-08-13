@@ -22,40 +22,43 @@ logger = logging.getLogger(__name__)
 
 class Alfred(object):
     def __init__(self):
-        # Set the updater server/polling with api token
         self.updater = Updater(config.telegram['token'])
-
-        # Get dispatcher for messages
         self.dp = self.updater.dispatcher
-
-        # Use the chat id to identify if the bot is in the proper chat room
         self.chat_id = config.telegram['chat_id']
-
-        # Imports all of the modules that are marked as being active
         self.active_modules = self.import_active_modules(config.modules)
 
         # Adds the default handlers used for basic commands/menu
-        self.add_default_handlers()
+        self.add_core_callback_handlers()
         
         # Adds the handlers for the modules and their respective menus
         self.add_active_module_handlers()
+
+    def main_menu(self, bot, update):
+        query = update.callback_query
+        message = update.message
+        if message is None:
+            message = query.message
+        if self.check_auth(message):
+            bot.edit_message_text(
+                chat_id=query.message.chat_id,
+                message_id=query.message.message_id,
+                text="Main Commands",
+                reply_markup=InlineKeyboardMarkup(self.get_main_menu_keyboard()))
 
     def start(self, bot, update):
         if self.check_auth(update.message):
             update.message.reply_text(
                 "Modules",
-                reply_markup=self.main_menu_keyboard())
-
-    def stop_and_restart(self):
-        self.updater.stop()
-        os.execl(
-            sys.executable,
-            sys.executable,
-            * sys.argv
-        )
+                reply_markup=InlineKeyboardMarkup(self.get_main_menu_keyboard()))
 
     def restart(self, bot, update):
         if self.check_auth(update.message):
+            self.updater.stop()
+            os.execl(
+                sys.executable,
+                sys.executable,
+                * sys.argv
+            )
             update.message.reply_text('🖥 restarting system...')
             Thread(target=self.stop_and_restart).start()
             update.message.reply_text('🖥 system back online!')
@@ -67,14 +70,14 @@ class Alfred(object):
             error
         )
 
-    def spin_up(self):
+    def wake_up(self):
         logging.info("Starting bot polling ...")
         self.updater.start_polling()
         self.updater.idle()
     
     # Used to check if a the message matches the chat_id in Alfred
     def check_auth(self, message):
-        if str(message.chat_id) == self.chat_id:
+        if message is not None and str(message.chat_id) == self.chat_id:
             logger.info(f"User: {message.chat.username}, authenticated")
             return True
         return False
@@ -99,14 +102,11 @@ class Alfred(object):
                 logger.error(f"could not import extension: {e}")
         return active_and_imported
 
-    def add_default_handlers(self):
-        logger.info("Adding default handlers ...")
-        self.dp.add_handler(
-            CommandHandler('start', self.start))
-        self.dp.add_handler(
-            CallbackQueryHandler(self.main_menu, pattern='core-main'))
-        self.dp.add_handler(
-            CommandHandler('restart', self.restart))
+    def add_core_callback_handlers(self):
+        logger.info("Adding core handlers ...")
+        self.dp.add_handler(CommandHandler('yo', self.start))
+        self.dp.add_handler(CallbackQueryHandler(self.main_menu, pattern='core-main'))
+        self.dp.add_handler(CommandHandler('restart', self.restart))
 
         self.dp.add_error_handler(self.error)
 
@@ -119,28 +119,21 @@ class Alfred(object):
             self.dp.add_handler(
                 CallbackQueryHandler(
                     module.callback_handler))
-
-    def main_menu(self, bot, update):
-        query = update.callback_query
-        message = update.message
-        if message is None:
-            message = query.message
-        if self.check_auth(message):
-            bot.edit_message_text(
-                chat_id=query.message.chat_id,
-                message_id=query.message.message_id,
-                text="Main Commands",
-                reply_markup=self.main_menu_keyboard())
-
-    def main_menu_keyboard(self):
-        keyboard = utils.get_menus_of_active_modules()
-        return InlineKeyboardMarkup(keyboard)
-
+    
+    def get_main_menu_keyboard(self):
+        keyboard = []
+        for mod in self.active_modules:
+            keyboard.append(
+                [InlineKeyboardButton(
+                    f"{mod.menu_name}",
+                    callback_data=f"{mod.name.lower()}-main")]
+            )
+        return keyboard
 
 def main():
     logger.info("Starting Alfred server ...")
     al = Alfred()
-    al.spin_up()
+    al.wake_up()
 
 
 def test_module():
