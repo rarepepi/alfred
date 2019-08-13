@@ -18,7 +18,7 @@ class AlfredModule(object):
     def callback_handler(self, query): pass
 
     def check_auth(self, msg):
-        if str(msg.chat_id) == config.telegram['chat_id']:
+        if str(msg.chat_id) == config.telegram['chat_id'] and msg is not None:
             logger.info(f"User: {msg.chat.username}, authenticated")
             logger.info(f"msg: {msg}")
             return True

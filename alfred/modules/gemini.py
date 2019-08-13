@@ -6,7 +6,7 @@ import hmac
 import hashlib
 import requests
 from .module import AlfredModule
-from .config import gemini_keys
+from .config import gemini
 from telegram import (
     InlineKeyboardMarkup,
     InlineKeyboardButton
@@ -21,12 +21,13 @@ logger = logging.getLogger(__name__)
 class Module(AlfredModule):
     def __init__(self):
         self.name = "gemini"
+        self.menu_name = "📟 Gemini"
         self.commands = [
-            ('balance', self.get_balance),
+            ('balance_detailed', self.get_detailed_balance),
         ]
         self.base_url = "https://api.gemini.com/v1"
-        self.api_key = gemini_keys['api_key']
-        self.api_secret = gemini_keys['api_secret']
+        self.api_key = gemini['api_key']
+        self.api_secret = gemini['api_secret']
 
     def main_menu(self, bot, update):
         keyboard = []
@@ -34,7 +35,7 @@ class Module(AlfredModule):
             command_name = command[0]
             keyboard.append(
                 [InlineKeyboardButton(
-                    '{}'.format(command_name),
+                    f"{command_name}",
                     callback_data=f'{self.name}-{command_name}')]
                 )
         keyboard.append(
@@ -50,14 +51,17 @@ class Module(AlfredModule):
     def callback_handler(self, bot, update):
         msg = update.callback_query.message
         if self.check_auth(msg):
-            command = update.callback_query.data
-            func = next(
-                cmd for cmd in self.commands if f"{self.name}-{cmd[0]}" == command)[1]
-            text = func()
-            bot.send_message(
-                text=text,
-                chat_id=update.callback_query.message.chat.id
-            )
+            try:
+                command = update.callback_query.data
+                func = next(
+                    cmd for cmd in self.commands if f"{self.name}-{cmd[0]}" == command)[1]
+                text = func()
+                bot.send_message(
+                    text=text,
+                    chat_id=update.callback_query.message.chat.id
+                )
+            except StopIteration:
+                logger.error(f"{msg} is not a command")
 
     def private_api_query(self, method, payload=None):
         if payload is None:
@@ -101,7 +105,7 @@ class Module(AlfredModule):
         ticker = self.public_api_query(f'/pubticker/{asset.lower()}usd')
         return float(ticker['last'])
 
-    def get_balance(self):
+    def get_detailed_balance(self):
         response = "Asset\t|\tAmount@Price\t|\tUSD\n-----------------------------"
         r_json = self.private_api_query('/balances')
         balances = [bal for bal in r_json if float(bal['amount']) > 0]
