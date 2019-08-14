@@ -30,6 +30,7 @@ class Module(AlfredModule):
         self.api_secret = gemini['api_secret']
 
     def main_menu(self, bot, update):
+        logger.info("Gemini main menu called")
         keyboard = []
         for command in self.commands:
             command_name = command[0]
@@ -41,12 +42,13 @@ class Module(AlfredModule):
         keyboard.append(
             [InlineKeyboardButton('🔙 main menu', callback_data='core-main')])
 
-        msg = update.callback_query.message
-        bot.edit_message_text(
-            chat_id=msg.chat_id,
-            message_id=msg.message_id,
-            text=f"{self.name.title()} Commands",
-            reply_markup=InlineKeyboardMarkup(keyboard))
+        query = update.callback_query
+        if self.check_auth(query.message):
+            bot.edit_message_text(
+                chat_id=query.message.chat_id,
+                message_id=query.message.message_id,
+                text="Gemini Main Menu",
+                reply_markup=InlineKeyboardMarkup(keyboard))
 
     def callback_handler(self, bot, update):
         msg = update.callback_query.message
