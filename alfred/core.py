@@ -38,7 +38,7 @@ class Alfred(object):
         self.add_core_callback_handlers()
 
         # Adds the handlers for the modules and their respective menus
-        self.add_active_module_handlers()
+        self.get_active_modules_commands()
 
     # Sends the main menu upon the /yo command
     def start(self, bot, update):
@@ -73,7 +73,6 @@ class Alfred(object):
         if self.check_auth(update.message):
             try:
                 command = query.data
-                logger.info(f"Recieved query: {command}")
                 if 'core' in command:
                     logger.info(f"Got command: {command}")
                     func = next(
@@ -156,11 +155,10 @@ class Alfred(object):
             self.callback_handler))
         self.dp.add_error_handler(self.error)
 
-    def add_active_module_handlers(self):
+    def get_active_modules_commands(self):
         for mod in self.active_modules:
-            logger.info(f"Adding menu handlers for {mod.name} module")
-            self.dp.add_handler(CallbackQueryHandler(mod.main_menu, pattern=f'{mod.name}-main'))
-            # self.dp.add_handler(CallbackQueryHandler(mod.callback_handler))
+            logger.info(f"Adding commands for {mod.name} module")
+            self.commands.append(mod.commands)
 
     def get_main_menu_keyboard(self):
         keyboard = []
