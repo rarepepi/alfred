@@ -1,4 +1,5 @@
-import config, utils
+import config
+import utils
 import logging
 import importlib
 import os
@@ -25,31 +26,65 @@ class Alfred(object):
         self.updater = Updater(config.telegram['token'])
         self.dp = self.updater.dispatcher
         self.chat_id = config.telegram['chat_id']
+        self.commands = [
+            ('💾 Modules 💾', 'modules'),
+            ('💸 Net Worth 💸', 'net', self.net_worth)
+        ]
+
+        # Imports the modules that are marked as active in the config
         self.active_modules = self.import_active_modules(config.modules)
 
         # Adds the default handlers used for basic commands/menu
         self.add_core_callback_handlers()
-        
+
         # Adds the handlers for the modules and their respective menus
         self.add_active_module_handlers()
 
+    # Sends the main menu upon the /yo command
+    def start(self, bot, update):
+        msg = update.message
+        if self.check_auth(msg):
+            msg.reply_text(
+                "Main Menu Commands",
+                reply_markup=self.get_main_menu_keyboard()
+            )
+
+    # Main menu response to back button
     def main_menu(self, bot, update):
         query = update.callback_query
-        message = update.message
-        if message is None:
-            message = query.message
-        if self.check_auth(message):
+        if self.check_auth(query.message):
             bot.edit_message_text(
                 chat_id=query.message.chat_id,
                 message_id=query.message.message_id,
-                text="Main Commands",
-                reply_markup=InlineKeyboardMarkup(self.get_main_menu_keyboard()))
+                text="Main Menu Commands",
+                reply_markup=self.get_main_menu_keyboard())
 
-    def start(self, bot, update):
+    def modules_menu(self, bot, update):
+        query = update.callback_query
+        if self.check_auth(query.message):
+            bot.edit_message_text(
+                chat_id=query.message.chat_id,
+                message_id=query.message.message_id,
+                text=f"Modules",
+                reply_markup=self.get_modules_keyboard())
+
+    def callback_handler(self, bot, update):
+        query = update.callback_query
         if self.check_auth(update.message):
-            update.message.reply_text(
-                "Modules",
-                reply_markup=InlineKeyboardMarkup(self.get_main_menu_keyboard()))
+            try:
+                command = query.data
+                logger.info(f"Recieved query: {command}")
+                if 'core' in command:
+                    logger.info(f"Got command: {command}")
+                    func = next(
+                        cmd for cmd in self.commands if f"core-{cmd[1]}" == command)[2]
+                    text = func()
+                    bot.send_message(
+                        text=text,
+                        chat_id=update.callback_query.message.chat.id
+                    )
+            except StopIteration:
+                logger.error(f"{query} is not a command")
 
     def restart(self, bot, update):
         if self.check_auth(update.message):
@@ -74,13 +109,19 @@ class Alfred(object):
         logging.info("Starting bot polling ...")
         self.updater.start_polling()
         self.updater.idle()
-    
+
     # Used to check if a the message matches the chat_id in Alfred
-    def check_auth(self, message):
-        if message is not None and str(message.chat_id) == self.chat_id:
-            logger.info(f"User: {message.chat.username}, authenticated")
+    def check_auth(self, msg):
+        if (
+            msg is not None
+            and str(msg.chat_id) == config.telegram['chat_id']
+            and str(msg.chat.username) == config.telegram['username']
+        ):
+            logger.info(f"User: {msg.chat.username}, authenticated")
             return True
+
         return False
+        logger.info(f"User: {msg.chat.username}, failed auth")
 
     # Attempts to import all active modules
     def import_active_modules(self, modules):
@@ -88,11 +129,12 @@ class Alfred(object):
         # Creates a list of the all the modules which a true value in active
         active = [mod for mod in modules if mod['active']]
 
-        # Goes through the module 
+        # Goes through the module
         active_and_imported = []
         for mod in active:
             try:
                 mod_name = mod['name'].lower()
+
                 logger.info(f"Attemping to import {mod_name}...")
                 module = importlib.import_module(
                     f'.{mod_name}', 'modules')
@@ -105,30 +147,51 @@ class Alfred(object):
     def add_core_callback_handlers(self):
         logger.info("Adding core handlers ...")
         self.dp.add_handler(CommandHandler('yo', self.start))
-        self.dp.add_handler(CallbackQueryHandler(self.main_menu, pattern='core-main'))
         self.dp.add_handler(CommandHandler('restart', self.restart))
-
+        self.dp.add_handler(CallbackQueryHandler(
+            self.main_menu, pattern='core-main'))
+        self.dp.add_handler(CallbackQueryHandler(
+            self.modules_menu, pattern='core-modules'))
+        self.dp.add_handler(CallbackQueryHandler(
+            self.callback_handler))
         self.dp.add_error_handler(self.error)
 
     def add_active_module_handlers(self):
-        for module in self.active_modules:
-            logger.info(f"Adding menu handlers for {module.name} module")
-            self.dp.add_handler(
-                CallbackQueryHandler(
-                    module.main_menu, pattern=f'{module.name}-main'))
-            self.dp.add_handler(
-                CallbackQueryHandler(
-                    module.callback_handler))
-    
+        for mod in self.active_modules:
+            logger.info(f"Adding menu handlers for {mod.name} module")
+            self.dp.add_handler(CallbackQueryHandler(mod.main_menu, pattern=f'{mod.name}-main'))
+            # self.dp.add_handler(CallbackQueryHandler(mod.callback_handler))
+
     def get_main_menu_keyboard(self):
+        keyboard = []
+        for cmd in self.commands:
+            keyboard.append(
+                [InlineKeyboardButton(
+                    f"{cmd[0]}",
+                    callback_data=f"core-{cmd[1]}")]
+            )
+        return InlineKeyboardMarkup(keyboard)
+
+    def get_modules_keyboard(self):
         keyboard = []
         for mod in self.active_modules:
             keyboard.append(
                 [InlineKeyboardButton(
                     f"{mod.menu_name}",
-                    callback_data=f"{mod.name.lower()}-main")]
+                    callback_data=f'{mod.name}-main')]
             )
-        return keyboard
+        keyboard.append(
+            [InlineKeyboardButton('🔙 main menu', callback_data='core-main')])
+
+        return InlineKeyboardMarkup(keyboard)
+
+    def get_total_balance(self):
+        for mod in self.active_modules:
+            total += mod.get_balance()
+
+    def net_worth(self):
+        return 100
+
 
 def main():
     logger.info("Starting Alfred server ...")
