@@ -65,19 +65,23 @@ class Alfred(object):
             bot.edit_message_text(
                 chat_id=query.message.chat_id,
                 message_id=query.message.message_id,
-                text=f"Modules",
+                text="Modules",
                 reply_markup=self.get_modules_keyboard())
 
     def callback_handler(self, bot, update):
         query = update.callback_query
         if self.check_auth(update.message):
             try:
-                command = query.data
-                if 'core' in command:
-                    logger.info(f"Got command: {command}")
-                    func = next(
-                        cmd for cmd in self.commands if f"core-{cmd[1]}" == command)[2]
-                    text = func()
+                query = query.data
+                mod_name = query[:query.find('-')]
+                if "core-" in query:
+                    pass
+                elif mod_name in [mod.name for mod in self.active_modules]:
+                    logger.info(f"Got command for {mod_name} ...")
+                    mod_command = query[query.find('-'):]
+                    mod = next((x for x in self.active_modules if x.name == mod_name))
+                    mod_func = getattr(mod, mod_command)
+                    text = mod_func()
                     bot.send_message(
                         text=text,
                         chat_id=update.callback_query.message.chat.id
@@ -86,6 +90,7 @@ class Alfred(object):
                 logger.error(f"{query} is not a command")
 
     def restart(self, bot, update):
+        # OUT OF SERVICE
         if self.check_auth(update.message):
             self.updater.stop()
             os.execl(
@@ -94,7 +99,6 @@ class Alfred(object):
                 * sys.argv
             )
             update.message.reply_text('🖥 restarting system...')
-            Thread(target=self.stop_and_restart).start()
             update.message.reply_text('🖥 system back online!')
 
     def error(self, bot, update, error):
@@ -133,8 +137,7 @@ class Alfred(object):
         for mod in active:
             try:
                 mod_name = mod['name'].lower()
-
-                logger.info(f"Attemping to import {mod_name}...")
+                logger.info(f"trying to import {mod_name}...")
                 module = importlib.import_module(
                     f'.{mod_name}', 'modules')
                 active_and_imported.append(module.Module())

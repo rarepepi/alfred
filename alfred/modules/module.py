@@ -17,6 +17,7 @@ class AlfredModule(object):
     @abstractmethod
     def callback_handler(self, query): pass
 
+    @staticmethod
     def check_auth(self, msg):
         if (
             msg is not None
@@ -27,5 +28,5 @@ class AlfredModule(object):
             logger.info(msg.text)
             return True
 
-        return False
         logger.info(f"User: {msg.chat.username}, failed auth")
+        return False
