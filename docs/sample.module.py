@@ -1,10 +1,3 @@
-from telegram import (
-    InlineKeyboardButton,
-    InlineKeyboardMarkup
-)
-
-
-
 class Module(AlfredModule):
     def __init__(self):
         self.name = "mod_name"
