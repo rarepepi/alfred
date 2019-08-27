@@ -1,6 +1,10 @@
 from abc import ABCMeta, abstractmethod
 import config
 import logging
+from telegram import (
+    InlineKeyboardMarkup,
+    InlineKeyboardButton
+)
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -30,3 +34,19 @@ class AlfredModule(object):
 
         logger.info(f"User: {msg.chat.username}, failed auth")
         return False
+
+    @staticmethod
+    def get_menu_keyboard(self):
+        keyboard = []
+        for command in self.commands:
+            command_name = command[0]
+            command_func = command[1]
+            keyboard.append(
+                [InlineKeyboardButton(
+                    f"{command_name}",
+                    callback_data=f'{self.name}-{command_func}')]
+                )
+        keyboard.append(
+            [InlineKeyboardButton('🔙 main menu', callback_data='core-main')])
+
+        return InlineKeyboardMarkup(keyboard)
