@@ -26,9 +26,10 @@ class Alfred(object):
         self.updater = Updater(config.telegram['token'])
         self.dp = self.updater.dispatcher
         self.chat_id = config.telegram['chat_id']
-        self.commands = [
+        self.module_commands = []
+        self.main_commands = [
             ('💾 Modules 💾', 'modules'),
-            ('💸 Net Worth 💸', 'net', self.net_worth)
+            ('💸 Net Worth 💸', 'net_worth')
         ]
 
         # Imports the modules that are marked as active in the config
@@ -69,17 +70,33 @@ class Alfred(object):
                 reply_markup=self.get_modules_keyboard())
 
     def callback_handler(self, bot, update):
-        query = update.callback_query
-        if self.check_auth(update.message):
+        msg = update.callback_query.message
+        query = update.callback_query.data
+        if self.check_auth(msg):
             try:
-                query = query.data
+                logger.info(f"Got msg: {query}")
                 mod_name = query[:query.find('-')]
                 if "core-" in query:
-                    pass
+                    core_command = query[query.find('-')+1:]
+                    core_func = getattr(self, core_command)
+                    text = core_func()
+                    bot.send_message(
+                        text=text,
+                        chat_id=update.callback_query.message.chat.id
+                    )
                 elif mod_name in [mod.name for mod in self.active_modules]:
                     logger.info(f"Got command for {mod_name} ...")
-                    mod_command = query[query.find('-'):]
+                    mod_command = query[query.find('-')+1:]
                     mod = next((x for x in self.active_modules if x.name == mod_name))
+                    if "-main" in query:
+                        mod_func = getattr(mod, "get_menu_keyboard")
+                        keyboard = mod_func(mod)
+                        bot.edit_message_text(
+                            chat_id=msg.chat_id,
+                            message_id=msg.message_id,
+                            text="Modules",
+                            reply_markup=keyboard)
+                        return
                     mod_func = getattr(mod, mod_command)
                     text = mod_func()
                     bot.send_message(
@@ -161,11 +178,11 @@ class Alfred(object):
     def get_active_modules_commands(self):
         for mod in self.active_modules:
             logger.info(f"Adding commands for {mod.name} module")
-            self.commands.append(mod.commands)
+            self.module_commands.append(mod.commands)
 
     def get_main_menu_keyboard(self):
         keyboard = []
-        for cmd in self.commands:
+        for cmd in self.main_commands:
             keyboard.append(
                 [InlineKeyboardButton(
                     f"{cmd[0]}",
