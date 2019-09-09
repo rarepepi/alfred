@@ -1,5 +1,4 @@
 import logging
-import time
 import json
 import base64
 import hmac
