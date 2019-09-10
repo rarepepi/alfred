@@ -23,7 +23,10 @@ logger = logging.getLogger(__name__)
 
 class Alfred(object):
     def __init__(self):
-        self.updater = Updater(config.telegram['token'])
+        self.updater = Updater(
+            config.telegram['token'],
+            use_context=True
+        )
         self.dp = self.updater.dispatcher
         self.chat_id = config.telegram['chat_id']
         self.module_commands = []
@@ -208,7 +211,7 @@ class Alfred(object):
             total += mod.get_balance()
 
     def net_worth(self):
-        return 100
+        return "coming soon..."
 
 
 def main():
