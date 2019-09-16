@@ -22,7 +22,8 @@ class Module(AlfredModule):
         ]
 
     def get_balance(self):
-        # headers = {
-        #     'cookie': goldmoney['cookie']
-        # }
-        return "gm balance"
+        headers = {
+            'cookie': goldmoney['cookie']
+        }
+        r = requests.get('https://wealth-api.goldmoney.com/balances')
+        return r.json()

@@ -45,7 +45,7 @@ class Alfred(object):
         self.get_active_modules_commands()
 
     # Sends the main menu upon the /yo command
-    def start(self, bot, update):
+    def start(self, update, context):
         msg = update.message
         if self.check_auth(msg):
             msg.reply_text(
@@ -54,8 +54,9 @@ class Alfred(object):
             )
 
     # Main menu response to back button
-    def main_menu(self, bot, update):
+    def main_menu(self, update, context):
         query = update.callback_query
+        bot = context.bot
         if self.check_auth(query.message):
             bot.edit_message_text(
                 chat_id=query.message.chat_id,
@@ -63,8 +64,9 @@ class Alfred(object):
                 text="Main Menu Commands",
                 reply_markup=self.get_main_menu_keyboard())
 
-    def modules_menu(self, bot, update):
+    def modules_menu(self, update, context):
         query = update.callback_query
+        bot = context.bot
         if self.check_auth(query.message):
             bot.edit_message_text(
                 chat_id=query.message.chat_id,
@@ -72,9 +74,10 @@ class Alfred(object):
                 text="Modules",
                 reply_markup=self.get_modules_keyboard())
 
-    def callback_handler(self, bot, update):
+    def callback_handler(self, update, context):
         msg = update.callback_query.message
         query = update.callback_query.data
+        bot = context.bot
         if self.check_auth(msg):
             try:
                 logger.info(f"Got msg: {query}")
@@ -109,7 +112,7 @@ class Alfred(object):
             except StopIteration:
                 logger.error(f"{query} is not a command")
 
-    def restart(self, bot, update):
+    def restart(self, update, context):
         # OUT OF SERVICE
         if self.check_auth(update.message):
             self.updater.stop()
@@ -121,7 +124,7 @@ class Alfred(object):
             update.message.reply_text('🖥 restarting system...')
             update.message.reply_text('🖥 system back online!')
 
-    def error(self, bot, update, error):
+    def error(self, update, context, error):
         logger.warning(
             'Update "%s" caused error "%s"',
             update,
@@ -211,6 +214,9 @@ class Alfred(object):
             total += mod.get_balance()
 
     def net_worth(self):
+        # Go into every running module
+        # And run get_balance
+        # Add them all up and send itttt
         return "coming soon..."
 
 
