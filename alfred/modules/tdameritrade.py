@@ -23,3 +23,6 @@ class Module(AlfredModule):
 
     def get_balance_detailed(self):
         return "yeerrrer"
+    
+    def get_balance(self):
+        return 200

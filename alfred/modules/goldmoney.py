@@ -26,4 +26,4 @@ class Module(AlfredModule):
             'cookie': goldmoney['cookie']
         }
         r = requests.get('https://wealth-api.goldmoney.com/balances')
-        return r.json()
+        return 100
