@@ -214,10 +214,11 @@ class Alfred(object):
             total += mod.get_balance()
 
     def net_worth(self):
+        total = 0
         # Go into every running module
-        # And run get_balance
-        # Add them all up and send itttt
-        return "coming soon..."
+        for mod in self.active_modules:
+            total += mod.get_balance()
+        return round(total, 2)
 
 
 def main():
