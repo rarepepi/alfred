@@ -84,3 +84,18 @@ class Module(AlfredModule):
             response = response + f"\n{asset}\t|\t{amount}@{price}\t|\t{usd_value}"
         response = response + f"\n\nTotal: ${round(total_usd, 2)}"
         return response
+
+    def get_balance(self):
+        r_json = self.private_api_query('/balances')
+        balances = [bal for bal in r_json if float(bal['amount']) > 0]
+        total_usd = 0
+        for balance in balances:
+            asset = balance['currency']
+            amount = round(float(balance['amount']), 5)
+            if asset == "USD":
+                price = 1
+            else:
+                price = self.price(asset)
+            usd_value = round(price * amount, 2)
+            total_usd += usd_value
+        return total_usd
