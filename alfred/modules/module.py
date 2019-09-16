@@ -16,10 +16,7 @@ class AlfredModule(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def main_menu(self): pass
-
-    @abstractmethod
-    def callback_handler(self, query): pass
+    def get_balance(self): pass
 
     @staticmethod
     def check_auth(self, msg):
