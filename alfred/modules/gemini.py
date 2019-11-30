@@ -82,7 +82,8 @@ class Module(AlfredModule):
             usd_value = round(price * amount, 2)
             total_usd += usd_value
             response = response + f"\n{asset}\t|\t{amount}@{price}\t|\t{usd_value}"
-        response = response + f"\n\nTotal: ${round(total_usd, 2)}"
+        response += "\n-------------------------------------------------------"
+        response = response + f"\nTotal: ${round(total_usd, 2)}"
         return response
 
     def get_balance(self):
