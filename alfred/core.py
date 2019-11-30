@@ -214,17 +214,23 @@ class Alfred(object):
 
     def total_balance(self):
         total = 0
+        total_balance_str = "----------------------------------\n"
         # Go into every running module
         for mod in self.active_modules:
-            total += mod.get_balance()
-        return round(total, 2)
+            balance = round(mod.get_balance(), 2)
+            total += balance
+            total_balance_str += f"{mod.menu_name} | ${balance}\n"
+        total_balance_str += "----------------------------------\n"
+        total_balance_str += f"💶 Total Fund 💶: ${round((total+1200), 2)}\n {'⬆' if ((total+1200) - config.portfolio['initialInvestment']) > 0 else '⬇'}${round((total+1200) - config.portfolio['initialInvestment'], 2)}| {round(((total+1200) - config.portfolio['initialInvestment'])/config.portfolio['initialInvestment'], 2)*100}%\n"
+        total_balance_str += "----------------------------------\n"
+        return total_balance_str
 
     def portfolio(self):
         assets = config.portfolio['assets']
-        porfolio_str = "Portfolio Splits\n"
-        porfolio_str += "--------------------------\n"
+        porfolio_str = "--------------------------\n"
         for a in assets:
-            porfolio_str += f"{a['class']} | {a['allocation']}\n"
+            porfolio_str += f"{a['portfolio_str']} | {a['allocation']}\n"
+        porfolio_str += "----------------------------------\n"
         return porfolio_str
 
 
