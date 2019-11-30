@@ -30,7 +30,6 @@ class Module(AlfredModule):
             ('💰 Balance', "get_balance_detailed"),
         ]
 
-    # need a make request method
     def request(self, method, path, payload=None):
         request_method = requests.get if method == 'get' else requests.post
         headers = {
@@ -46,8 +45,6 @@ class Module(AlfredModule):
             r = request_method(self.api_url + path, data=payload, headers=headers)
             json = r.json()
             return json
-    # need to pass in type of request and path, with data or no data
-
 
     def refresh_token(self):
         refresh_token = parser.get('TDAmeritrade', 'RefreshToken')
