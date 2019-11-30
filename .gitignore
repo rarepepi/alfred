@@ -5,4 +5,5 @@ __pycache__
 
 deploy.sh
 config.py
+config.ini
 server.sh
