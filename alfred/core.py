@@ -31,8 +31,10 @@ class Alfred(object):
         self.chat_id = config.telegram['chat_id']
         self.module_commands = []
         self.main_commands = [
-            ('💾 Modules 💾', 'modules'),
-            ('💸 Net Worth 💸', 'net_worth')
+            ('💾 Exchanges 💾', 'modules'),
+            ('💯 Portfolio 💯', 'portfolio'),
+            ('💸 Total Balance 💸', 'total_balance')
+
         ]
 
         # Imports the modules that are marked as active in the config
@@ -209,16 +211,21 @@ class Alfred(object):
 
         return InlineKeyboardMarkup(keyboard)
 
-    def get_total_balance(self):
-        for mod in self.active_modules:
-            total += mod.get_balance()
 
-    def net_worth(self):
+    def total_balance(self):
         total = 0
         # Go into every running module
         for mod in self.active_modules:
             total += mod.get_balance()
         return round(total, 2)
+
+    def portfolio(self):
+        assets = config.portfolio['assets']
+        porfolio_str = "Portfolio Splits\n"
+        porfolio_str += "--------------------------\n"
+        for a in assets:
+            porfolio_str += f"{a['class']} | {a['allocation']}\n"
+        return porfolio_str
 
 
 def main():
