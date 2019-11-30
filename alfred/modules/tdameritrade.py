@@ -32,10 +32,15 @@ class Module(AlfredModule):
 
     def request(self, method, path, payload=None):
         request_method = requests.get if method == 'get' else requests.post
+
         headers = {
             "Authorization": f"Bearer {parser.get('TDAmeritrade', 'AccessToken')}"
         }
 
+        if path == 'oauth2/token':
+            headers= {
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
         r = request_method(self.api_url + path, data=payload, headers=headers)
         if r.status_code == 200:
             json = r.json()
@@ -74,9 +79,7 @@ class Module(AlfredModule):
     def get_balance_detailed(self):
         r = self.request('get', 'accounts?fields=positions')
         positions = r[0]['securitiesAccount']['positions']
-        positions_str = "List of postitons"
-        positions_str = "AMOUNT TICKER | MARKET_VALUE | 24hr_PRICE_CHANGE | PURCHASE_PRICE_CHANGE\n"
-        positions_str += "-----------------------------------------------------------\n"
+        positions_str = "----------------------\n"
         total_market_value = 0
         total_day_profitloss = 0
 
@@ -90,7 +93,9 @@ class Module(AlfredModule):
             total_day_profitloss += currerentDayProfitLoss
             todays_preformance = round(pos['currentDayProfitLossPercentage'], 3)
             percent_change_since_purchase = round(((market_value / (avg_purchase_price * amount)) - 1) * 100, 2)
-            positions_str += f"({amount}){symbol} | ${market_value}(24hr: {'📈' if todays_preformance > 0 else '📉'}{currerentDayProfitLoss}) | {todays_preformance}% | {'📈' if percent_change_since_purchase > 0 else '📉'}{percent_change_since_purchase}%\n"
-        positions_str += "-----------------------------------------------------------\n"
-        positions_str += f"Total Profit Loss Today: {total_day_profitloss}             Total Market Value: {total_market_value}"
+            positions_str += f"💰 {symbol} | {amount} | ${market_value}{'📈' if todays_preformance > 0 else '📉'}${currerentDayProfitLoss}[ 24hr ]) | {todays_preformance}%[ 24hr ] | {'👍' if percent_change_since_purchase > 0 else '😱'}{percent_change_since_purchase}%[ ALL ]\n"
+            positions_str += "---------------------------------------\n"
+        positions_str += "---------------------------------------\n"
+        positions_str += f"Total {self.menu_name} Holdings: ${total_market_value} {'👍' if total_day_profitloss > 0 else '👎'} ${round(total_day_profitloss, 2)}[ 24hr ]\n"
+        positions_str += "---------------------------------------\n"
         return positions_str
