@@ -5,8 +5,8 @@ import base64
 import hmac
 import hashlib
 import requests
-from .module import AlfredModule
-from .config import gemini
+from modules.module import AlfredModule
+from modules.configs.config import gemini
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
