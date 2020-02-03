@@ -37,6 +37,8 @@ Twisted = "==19.7.0"
 lxml = "*"
 python-telegram-bot = "*"
 pandas = "*"
+websockets = "*"
+pyodbc = "*"
 
 [dev-packages]
 pylint = "*"
