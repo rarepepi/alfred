@@ -221,7 +221,7 @@ class Alfred(object):
             total += balance
             total_balance_str += f"{mod.menu_name} | ${balance}\n"
         total_balance_str += "----------------------------------\n"
-        total_balance_str += f"💶 Total Fund 💶: ${round((total+1200), 2)}\n {'⬆' if ((total+1200) - config.portfolio['initialInvestment']) > 0 else '⬇'}${round((total+1200) - config.portfolio['initialInvestment'], 2)}| {round(((total+1200) - config.portfolio['initialInvestment'])/config.portfolio['initialInvestment'], 2)*100}%\n"
+        total_balance_str += f"💶 Total Fund 💶: ${round(total, 2)}\n {'⬆' if (total - config.portfolio['initialInvestment']) > 0 else '⬇'}${round(total - config.portfolio['initialInvestment'], 2)}| {round((total - config.portfolio['initialInvestment'])/config.portfolio['initialInvestment'], 2)*100}%\n"
         total_balance_str += "----------------------------------\n"
         return total_balance_str
 
