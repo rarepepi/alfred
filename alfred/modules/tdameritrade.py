@@ -4,21 +4,17 @@ import base64
 import hmac
 import hashlib
 import requests
-from .module import AlfredModule
-from .config import td_ameritrade
-import urllib.parse
-import configparser
+from modules.module import AlfredModule
+from modules.configs.config import td_ameritrade
+
 import logging
 import os 
+from modules.libs.td import client
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-parser = configparser.ConfigParser()
-dir_path = os.path.dirname(os.path.realpath(__file__))
-parser.read(f'{dir_path}/config.ini')
 
 
 class Module(AlfredModule):
@@ -29,56 +25,28 @@ class Module(AlfredModule):
         self.commands = [
             ('💰 Balance', "get_balance_detailed"),
         ]
+        self.session = self.get_TD_session()
 
-    def request(self, method, path, payload=None):
-        request_method = requests.get if method == 'get' else requests.post
-
-        headers = {
-            "Authorization": f"Bearer {parser.get('TDAmeritrade', 'AccessToken')}"
-        }
-
-        if path == 'oauth2/token':
-            headers= {
-                "Content-Type": "application/x-www-form-urlencoded"
-            }
-        r = request_method(self.api_url + path, data=payload, headers=headers)
-        if r.status_code == 200:
-            json = r.json()
-            return json
+    def get_TD_session(self):
+        TDSession = client.TDClient(
+            account_number = td_ameritrade['account_number'],
+            account_password = td_ameritrade['account_password'],
+            consumer_id = td_ameritrade['consumer_id'],
+            redirect_uri = td_ameritrade['redirect_uri']
+        )
+        if TDSession is not None:
+            return TDSession
         else:
-            self.refresh_token()
-            r = request_method(self.api_url + path, data=payload, headers=headers)
-            json = r.json()
-            return json
-
-    def refresh_token(self):
-        refresh_token = parser.get('TDAmeritrade', 'RefreshToken')
-        access_token = parser.get('TDAmeritrade', 'AccessToken')
-
-        params = {
-            'grant_type': 'refresh_token',
-            'refresh_token': refresh_token,
-            'access_type': 'offline',
-            'client_id': td_ameritrade['client_id']
-        }
-        payload = urllib.parse.urlencode(params)
-        r = self.request('post', 'oauth2/token', payload)
-        parser.set('TDAmeritrade', 'AccessToken', r['access_token'])
-        parser.set('TDAmeritrade', 'RefreshToken', r['refresh_token'])
-
-        fp=open(f'{dir_path}/config.ini','w')
-        parser.write(fp)
-        fp.close()
-
+            raise Exception("Failed to get TDSession")
 
     def get_balance(self):
-        r = self.request('get', 'accounts')
-        total_balance = r[0]['securitiesAccount']['currentBalances']['liquidationValue']
+        accounts = self.session.get_accounts()
+        total_balance = accounts[0]['securitiesAccount']['currentBalances']['liquidationValue']
         return total_balance
 
     def get_balance_detailed(self):
-        r = self.request('get', 'accounts?fields=positions')
-        positions = r[0]['securitiesAccount']['positions']
+        accounts = self.session.get_accounts(fields=['positions'])
+        positions = accounts[0]['securitiesAccount']['positions']
         positions_str = "----------------------\n"
         total_market_value = 0
         total_day_profitloss = 0
@@ -99,3 +67,5 @@ class Module(AlfredModule):
         positions_str += f"Total {self.menu_name} Holdings: ${total_market_value} {'👍' if total_day_profitloss > 0 else '👎'} ${round(total_day_profitloss, 2)}[ 24hr ]\n"
         positions_str += "---------------------------------------\n"
         return positions_str
+
+
