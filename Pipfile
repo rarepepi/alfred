@@ -42,5 +42,6 @@ pyodbc = "*"
 
 [dev-packages]
 pylint = "*"
+autopep8 = "*"
 
 [requires]
