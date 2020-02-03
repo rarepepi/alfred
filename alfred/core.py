@@ -126,12 +126,8 @@ class Alfred(object):
             update.message.reply_text('🖥 restarting system...')
             update.message.reply_text('🖥 system back online!')
 
-    def error(self, update, context, error):
-        logger.warning(
-            'Update "%s" caused error "%s"',
-            update,
-            error
-        )
+    def error(self, update, context):
+        logger.error(f'{context.error} caused an error')
 
     def wake_up(self):
         logging.info("Starting bot polling ...")
