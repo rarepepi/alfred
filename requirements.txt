@@ -45,7 +45,7 @@ requests==2.24.0
 service-identity==18.1.0
 six==1.15.0
 soupsieve==2.0.1
-tornado==6.0.3
+tornado==6.0.4
 traitlets==4.3.3
 Twisted==19.7.0
 txaio==2.10.0
