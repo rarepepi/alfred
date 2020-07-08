@@ -16,7 +16,7 @@ from telegram.ext import (
 )
 
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='%(message)s',
     level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -31,10 +31,9 @@ class Alfred(object):
         self.chat_id = config.telegram['chat_id']
         self.module_commands = []
         self.main_commands = [
-            ('💾 Exchanges 💾', 'modules'),
-            ('💯 Portfolio 💯', 'portfolio'),
+            ('📜 Exchanges 📜', 'modules'),
+            ('🗃 Portfolio Splits 🗃️', 'portfolio'),
             ('💸 Total Balance 💸', 'total_balance')
-
         ]
 
         # Imports the modules that are marked as active in the config
@@ -82,7 +81,7 @@ class Alfred(object):
         bot = context.bot
         if self.check_auth(msg):
             try:
-                logger.info(f"Got msg: {query}")
+                logger.info(f"🤖 Got msg: {query}")
                 mod_name = query[:query.find('-')]
                 if "core-" in query:
                     core_command = query[query.find('-')+1:]
@@ -93,7 +92,7 @@ class Alfred(object):
                         chat_id=update.callback_query.message.chat.id
                     )
                 elif mod_name in [mod.name for mod in self.active_modules]:
-                    logger.info(f"Got command for {mod_name} ...")
+                    logger.info(f"🤖 Got command for {mod_name} ...")
                     mod_command = query[query.find('-')+1:]
                     mod = next((x for x in self.active_modules if x.name == mod_name))
                     if "-main" in query:
@@ -112,7 +111,7 @@ class Alfred(object):
                         chat_id=update.callback_query.message.chat.id
                     )
             except StopIteration:
-                logger.error(f"{query} is not a command")
+                logger.error(f"🛑 {query} is not a command")
 
     def restart(self, update, context):
         # OUT OF SERVICE
@@ -130,7 +129,7 @@ class Alfred(object):
         logger.error(f'{context.error} caused an error')
 
     def wake_up(self):
-        logging.info("Starting bot polling ...")
+        logging.info("🤖 Starting bot polling ...")
         self.updater.start_polling()
         self.updater.idle()
 
@@ -141,15 +140,15 @@ class Alfred(object):
             and str(msg.chat_id) == config.telegram['chat_id']
             and str(msg.chat.username) == config.telegram['username']
         ):
-            logger.info(f"User: {msg.chat.username}, authenticated")
+            logger.info(f"🔑 {msg.chat.username} authenticated!")
             return True
 
         return False
-        logger.info(f"User: {msg.chat.username}, failed auth")
+        logger.info(f"🛑 {msg.chat.username} failed auth!")
 
     # Attempts to import all active modules
     def import_active_modules(self, modules):
-        logger.info("Importing active modules ...")
+        logger.info("\n-------------------------------------\n📇 Importing active modules ...\n-------------------------------------\n")
         # Creates a list of the all the modules which a true value in active
         active = [mod for mod in modules if mod['active']]
 
@@ -157,18 +156,19 @@ class Alfred(object):
         active_and_imported = []
         for mod in active:
             try:
-                mod_name = mod['name'].lower()
-                logger.info(f"trying to import {mod_name}...")
+                mod_name = mod['name']
+                logger.info(f"📜 Importing {mod_name} ...")
                 module = importlib.import_module(
-                    f'.{mod_name}', 'modules')
+                    f'.{mod_name.lower()}', 'modules')
                 active_and_imported.append(module.Module())
-                logger.info(f"{mod_name} module imported")
+                logger.info(f"✅ {mod_name} successfully imported!\n")
             except Exception as e:
-                logger.error(f"could not import extension: {e}")
+                logger.error(f"⭕ Module import failed: {e}\n")
+        logger.info("-------------------------------------\n")
         return active_and_imported
 
     def add_core_callback_handlers(self):
-        logger.info("Adding core handlers ...")
+        logger.info("🤖 Adding core handlers ...")
         self.dp.add_handler(CommandHandler('yo', self.start))
         self.dp.add_handler(CommandHandler('restart', self.restart))
         self.dp.add_handler(CallbackQueryHandler(
@@ -181,7 +181,7 @@ class Alfred(object):
 
     def get_active_modules_commands(self):
         for mod in self.active_modules:
-            logger.info(f"Adding commands for {mod.name} module")
+            logger.info(f"🤖 Adding commands for {mod.menu_name}")
             self.module_commands.append(mod.commands)
 
     def get_main_menu_keyboard(self):
@@ -203,7 +203,7 @@ class Alfred(object):
                     callback_data=f'{mod.name}-main')]
             )
         keyboard.append(
-            [InlineKeyboardButton('🔙 main menu', callback_data='core-main')])
+            [InlineKeyboardButton('🔙  main menu', callback_data='core-main')])
 
         return InlineKeyboardMarkup(keyboard)
 
@@ -218,6 +218,7 @@ class Alfred(object):
             total_balance_str += f"{mod.menu_name} | ${balance}\n"
         total_balance_str += "----------------------------------\n"
         total_balance_str += f"💶 Total Fund 💶: ${round(total, 2)}\n {'⬆' if (total - config.portfolio['initialInvestment']) > 0 else '⬇'}${round(total - config.portfolio['initialInvestment'], 2)}| {round((total - config.portfolio['initialInvestment'])/config.portfolio['initialInvestment'], 2)*100}%\n"
+        total_balance_str += f"Inital Funds: {config.portfolio['initialInvestment']}"
         total_balance_str += "----------------------------------\n"
         return total_balance_str
 
@@ -231,13 +232,34 @@ class Alfred(object):
 
 
 def main():
-    logger.info("Starting Alfred server ...")
+    logger.info("\n\n-------------------------------------\n🤖   Starting Alfred server .....  🤖\n-------------------------------------")
+    logger.info("""
+                  ,---------------------------,
+              |  /---------------------\  |∂
+              | |                       | |
+              | |                       | |
+              | |        Alfred.        | |
+              | |   by Pepi Martinez    | |
+              | |                       | |
+              |  \_____________________/  |
+              |___________________________|
+            ,---\_____     []     _______/------,
+          /         /______________\           /|
+        /___________________________________ /  | ___
+        |                                   |   |    )
+        |  _ _ _                 [-------]  |   |   (
+        |  o o o                 [-------]  |  /    _)_
+        |__________________________________ |/     /  /
+    /-------------------------------------/|      ( )/
+  /-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/ /
+/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/ /
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~""")
     al = Alfred()
     al.wake_up()
 
 
 def test_module():
-    from modules.gemini import Module
+    from alfred.modules.gemini import Module
     client = Module(config.telegram['chat_id'])
     balance = client.balance()
     print(balance)
