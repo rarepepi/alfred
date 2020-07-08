@@ -50,7 +50,7 @@ traitlets==4.3.3
 Twisted==20.3.0
 txaio==20.4.1
 tzlocal==2.1
-ujson==1.35
+ujson==3.0.0
 urllib3==1.24.3
 wcwidth==0.1.8
 websockets==8.1
