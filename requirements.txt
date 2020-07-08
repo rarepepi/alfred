@@ -33,7 +33,7 @@ pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycparser==2.20
 Pygments==2.6.1
-PyHamcrest==2.0.0
+PyHamcrest==2.0.2
 pyodbc==4.0.28
 pyOpenSSL==18.0.0
 python-binance==0.6.9
