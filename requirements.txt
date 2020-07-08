@@ -42,7 +42,7 @@ python-telegram-bot==12.8
 pytz==2020.1
 regex==2020.6.8
 requests==2.24.0
-service-identity==17.0.0
+service-identity==18.1.0
 six==1.11.0
 soupsieve==1.9.5
 tornado==6.0.3
