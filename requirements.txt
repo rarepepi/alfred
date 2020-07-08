@@ -52,6 +52,6 @@ txaio==20.4.1
 tzlocal==2.1
 ujson==3.0.0
 urllib3==1.25.9
-wcwidth==0.1.8
+wcwidth==0.2.5
 websockets==8.1
 zope.interface==4.7.1
