@@ -37,7 +37,7 @@ PyHamcrest==2.0.2
 pyodbc==4.0.30
 pyOpenSSL==19.1.0
 python-binance==0.7.5
-python-dateutil==2.7.3
+python-dateutil==2.8.1
 python-telegram-bot==12.3.0
 pytz==2018.4
 regex==2018.6.6
