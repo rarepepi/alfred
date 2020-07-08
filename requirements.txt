@@ -35,7 +35,7 @@ pycparser==2.20
 Pygments==2.6.1
 PyHamcrest==2.0.2
 pyodbc==4.0.30
-pyOpenSSL==18.0.0
+pyOpenSSL==19.1.0
 python-binance==0.6.9
 python-dateutil==2.7.3
 python-telegram-bot==12.3.0
