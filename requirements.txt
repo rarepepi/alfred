@@ -4,7 +4,7 @@ attrs==19.3.0
 autobahn==20.6.2
 Automat==20.2.0
 backcall==0.2.0
-beautifulsoup4==4.8.2
+beautifulsoup4==4.9.1
 bs4==0.0.1
 certifi==2018.4.16
 cffi==1.11.5
