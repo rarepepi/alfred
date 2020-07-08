@@ -47,7 +47,7 @@ six==1.15.0
 soupsieve==2.0.1
 tornado==6.0.4
 traitlets==4.3.3
-Twisted==19.7.0
+Twisted==20.3.0
 txaio==2.10.0
 tzlocal==1.5.1
 ujson==1.35
