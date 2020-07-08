@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class Module(AlfredModule):
     def __init__(self):
         self.name = "binance"
-        self.menu_name = "🤑 Binance"
+        self.menu_name = "📒 Binance"
         self.commands = [
             ('💰 Balance', "get_balance_detailed"),
         ]
