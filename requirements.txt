@@ -36,7 +36,7 @@ Pygments==2.5.2
 PyHamcrest==2.0.0
 pyodbc==4.0.28
 pyOpenSSL==18.0.0
-python-binance==0.6.9
+python-binance==0.7.5
 python-dateutil==2.7.3
 python-telegram-bot==12.3.0
 pytz==2018.4
