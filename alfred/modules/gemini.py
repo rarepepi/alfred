@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class Module(AlfredModule):
     def __init__(self):
         self.name = "gemini"
-        self.menu_name = "📟 Gemini"
+        self.menu_name = "🌐 Gemini"
         self.commands = [
             ('💰 Balance', "get_balance_detailed"),
         ]
@@ -81,7 +81,7 @@ class Module(AlfredModule):
                 price = self.price(asset)
             usd_value = round(price * amount, 2)
             total_usd += usd_value
-            balance_detailed_str += f"💰[ {round(amount, 2)} ] | {asset} | ${usd_value}\n"
+            balance_detailed_str += f"💰{asset} | {round(amount, 2)} | ${usd_value}\n"
         balance_detailed_str += "---------------------------------------------\n"
         balance_detailed_str += f"Total {self.menu_name} Holdings: ${round(total_usd, 2)}\n"
         balance_detailed_str += "------------------------------------------------\n"
