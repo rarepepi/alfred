@@ -43,7 +43,7 @@ class Module(AlfredModule):
                 except:
                     price_in_usdt = 0
             total_usd += float(price_in_usdt) * float(balance['free'])
-            balance_detailed_str += f"💰[ {round(float(balance['free']), 5)} ] | {balance['asset']} | ${price_in_usdt}\n"
+            balance_detailed_str += f"💰 {balance['asset']} | {round(float(balance['free']), 2)} | ${round(float(price_in_usdt)*float(balance['free']), 2)}\n"
 
         balance_detailed_str += "---------------------------------------------\n"
         balance_detailed_str += f"Total Binance Holdings: ${round(total_usd, 2)}\n"
