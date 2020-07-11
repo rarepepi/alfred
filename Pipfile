@@ -38,6 +38,7 @@ pandas = "*"
 websockets = "*"
 pyodbc = "*"
 python-binance = "*"
+td-ameritrade-python-api = "*"
 
 [dev-packages]
 pylint = "*"
