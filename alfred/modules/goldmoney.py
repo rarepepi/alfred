@@ -49,10 +49,10 @@ class Module(AlfredModule):
         # Return value of profile by multiplying amounts by price
         total_usd_value = ((gold_holdings * gold_price) + (silver_holdings * silver_price))
         
-        balance_detail_str = "------------------------------------------------------\n"
+        balance_detail_str = "--------------------------------------------------\n"
         balance_detail_str += f"🥇 Gold | {gold_holdings}oz | ${round((gold_holdings * gold_price), 2)}\n"
         balance_detail_str += f"🥈 Silver | {silver_holdings}oz | ${round((silver_holdings * silver_price), 2)}\n"
-        balance_detail_str += "------------------------------------------------------\n"
+        balance_detail_str += "--------------------------------------------------\n"
         balance_detail_str += f"Total {self.menu_name} Holdings: ${round(total_usd_value, 2)}\n"
-        balance_detail_str += "------------------------------------------------------\n"
+        balance_detail_str += "--------------------------------------------------\n"
         return balance_detail_str
