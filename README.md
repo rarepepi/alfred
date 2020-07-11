@@ -27,6 +27,11 @@ A personal finance bot in charge of helping with the management of assets on var
  - One click account balances
  - Aggregates balances from all exchanges to see total portfolio value
 
+ <p align="center">
+    <img src="https://i.imgur.com/p1ZcEeL.png"></img>
+    <img src="https://i.imgur.com/EsY2ff9.png"></img>
+</p>
+
 
 ## License
 
