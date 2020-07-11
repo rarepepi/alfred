@@ -1,7 +1,29 @@
 # Alfred
-A personal finance bot in charge of assiting with the management of assets on various platforms: Gemini exchange(coming soon), Binance exchange(cs), Bank of America(cs), and RobinHood(cs).
-Commands, and the results they return, are sent through the telegram messsaging service.
-# Usage
-Copy docs/sample.config.py to alfred/config.py and plug in your corressponding api keys.
+A personal finance bot in charge of helping with the management of assets on various exchanges: Gemini, Binance, TDAmeritrade, Goldmoney.
+<p align="center">
+    <img src="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fvignette3.wikia.nocookie.net%2Fdcmovies%2Fimages%2F7%2F75%2FAlfred_Pennyworth_TDKR.jpg%2Frevision%2Flatest%3Fcb%3D20111219235041&f=1&nofb=1" width="490" alt"alfred" >
+    <br>
+    <img src="https://travis-ci.com/pepimartinez/alfred.svg?branch=master" alt="Build">
+</p>
+<p align="center">
+    <a href="#usage">Usage</a> •
+    <a href="#features">Features</a> •
+    <a href="#license">License</a>
+</p>
 
-SUpport is much appreciated, and contributions/improvements to the repo are encuraged.
+# Usage
+
+[![asciicast](https://asciinema.org/a/ZAD8F3hIYtYNs1E3ez2Exg2gC.svg)](https://asciinema.org/a/ZAD8F3hIYtYNs1E3ez2Exg2gC)
+
+
+---
+# Features
+ - One click account balances
+ - Aggregates balances from all exchanges to see total portfolio value
+
+
+## License
+
+- **[Apache-2.0](https://opensource.org/licenses/Apache-2.0)**
+- Copyright 2020 © Pepi Martinez
+---
