@@ -35,6 +35,7 @@ class Module(AlfredModule):
             credentials_path=f"{os.path.dirname(os.path.abspath(__file__))}/configs/td_keys.json"
         )
         TDSession.login()
+        return TDSession
 
     def get_balance(self):
         accounts = self.session.get_accounts()
