@@ -6,6 +6,6 @@ python:
 services:
   - docker
 
-script:
+before_install:
   - docker build -t alfred:test .
   - docker run alfred:test
