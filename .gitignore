@@ -7,4 +7,4 @@ deploy.sh
 config.py
 config.ini
 server.sh
-TDAmeritradeState.json
+td_keys.json
