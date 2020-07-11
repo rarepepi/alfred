@@ -1,8 +1,8 @@
-FROM python:3
+FROM python:3.7
 
 #Install FreeTDS and dependencies for PyODBC
 RUN apt-get update && apt-get install -y tdsodbc unixodbc-dev \
- && apt install unixodbc-bin -y  \
+ && apt-get install unixodbc-bin -y && apt-get install libffi-dev -y \
  && apt-get clean -y
 
 RUN echo "[FreeTDS]\n\
