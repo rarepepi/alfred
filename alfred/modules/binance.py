@@ -28,7 +28,7 @@ class Module(AlfredModule):
 
         current_btc_price = self.client.get_avg_price(symbol='BTCUSDT')
         total_usd = 0
-        balance_detailed_str = "-----------------------------------------\n"
+        balance_detailed_str = "--------------------------------------------------\n"
 
         # Go through all of the asset balances and add up their values
         for balance in balances:
@@ -45,9 +45,9 @@ class Module(AlfredModule):
             total_usd += float(price_in_usdt) * float(balance['free'])
             balance_detailed_str += f"💰 {balance['asset']} | {round(float(balance['free']), 2)} | ${round(float(price_in_usdt)*float(balance['free']), 2)}\n"
 
-        balance_detailed_str += "---------------------------------------------\n"
-        balance_detailed_str += f"Total Binance Holdings: ${round(total_usd, 2)}\n"
-        balance_detailed_str += "------------------------------------------------\n"
+        balance_detailed_str += "--------------------------------------------------\n"
+        balance_detailed_str += f"Total {self.menu_name} Holdings: ${round(total_usd, 2)}\n"
+        balance_detailed_str += "--------------------------------------------------\n"
 
         return balance_detailed_str
 
